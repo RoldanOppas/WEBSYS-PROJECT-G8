@@ -15,19 +15,22 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// Session setup - ADD THIS
+// Session setup - UPDATED with timeout
 app.use(session({
   secret: process.env.SESSION_SECRET || 'dev-secret', // keep secret in .env
   resave: false,
   saveUninitialized: false,
-  cookie: { secure: false } // set true in production with HTTPS
+  cookie: { 
+    secure: false, // set true in production with HTTPS
+    maxAge: 15 * 60 * 1000 // 15 minutes (in milliseconds)
+  }
 }));
 
-// MongoDB Setup - ADD THIS
+// MongoDB Setup
 const uri = process.env.MONGO_URI;
 const client = new MongoClient(uri);
 
-// Expose client & dbName to routes - ADD THIS
+// Expose client & dbName to routes
 app.locals.client = client;
 app.locals.dbName = process.env.DB_NAME || "ecommerceDB";
 
@@ -38,7 +41,7 @@ const usersRoute = require('./routes/users');
 app.use('/', indexRoute);
 app.use('/users', usersRoute);
 
-// Updated server startup with MongoDB connection - REPLACE YOUR CURRENT app.listen()
+// Updated server startup with MongoDB connection
 async function main() {
   try {
     await client.connect();

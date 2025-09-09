@@ -169,9 +169,13 @@ router.get('/dashboard', (req, res) => {
   });
 });
 
-// Logout
+// Logout route
 router.get('/logout', (req, res) => {
-  req.session.destroy(() => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error("Error destroying session:", err);
+      return res.send("Something went wrong during logout.");
+    }
     res.redirect('/users/login');
   });
 });
