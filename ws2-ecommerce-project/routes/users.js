@@ -1,34 +1,38 @@
 // routes/users.js
+const { v4: uuidv4 } = require('uuid');
+
 const express = require('express');
 const router = express.Router();
-const { MongoClient, ObjectId } = require('mongodb');
-const bcrypt = require('bcrypt');  // ✅ Import bcrypt
-require('dotenv').config();
+const { ObjectId } = require('mongodb');
+const bcrypt = require('bcryptjs');
 
-const uri = process.env.MONGO_URI;
-const client = new MongoClient(uri);
-const dbName = "ecommerceDB";
+const saltRounds = 12; // for bcrypt hashing
 
 // Show registration form
 router.get('/register', (req, res) => {
   res.render('register', { title: "Register" });
 });
 
-// Handle registration (already updated in Part 4)
+// Handle registration
 router.post('/register', async (req, res) => {
   try {
-    await client.connect();
-    const db = client.db(dbName);
+    const db = req.app.locals.client.db(req.app.locals.dbName);
     const usersCollection = db.collection('users');
 
+    // 1. Check if user already exists
     const existingUser = await usersCollection.findOne({ email: req.body.email });
     if (existingUser) return res.send("User already exists with this email.");
 
-    const hashedPassword = await bcrypt.hash(req.body.password, 12);
+    // 2. Hash password
+    const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
     const currentDate = new Date();
 
+    // 3. Create verification token
+    const token = uuidv4();
+
+    // 4. Build new user object
     const newUser = {
-      userId: new ObjectId(), // or uuid if you prefer
+      userId: uuidv4(), // external user ID
       firstName: req.body.firstName,
       lastName: req.body.lastName,
       email: req.body.email,
@@ -36,33 +40,68 @@ router.post('/register', async (req, res) => {
       role: 'customer',
       accountStatus: 'active',
       isEmailVerified: false,
+      verificationToken: token,
+      tokenExpiry: new Date(Date.now() + 3600000), // 1 hour expiry
       createdAt: currentDate,
       updatedAt: currentDate
     };
 
+    // 5. Insert into database
     await usersCollection.insertOne(newUser);
 
+    // 6. Show simulated verification link
     res.send(`
       <h2>Registration Successful!</h2>
-      <p>User ${newUser.firstName} ${newUser.lastName} registered with ID: ${newUser.userId}</p>
-      <a href="/users/login">Proceed to Login</a>
+      <p>Please verify your account before logging in.</p>
+      <p><a href="/users/verify/${token}">Click here to verify</a></p>
     `);
+
   } catch (err) {
-    console.error("Error registering user:", err);
+    console.error("Error saving user:", err);
     res.send("Something went wrong.");
   }
 });
 
-// ✅ Show login form
+// Email verification route
+router.get('/verify/:token', async (req, res) => {
+  try {
+    const db = req.app.locals.client.db(req.app.locals.dbName);
+    const usersCollection = db.collection('users');
+
+    const user = await usersCollection.findOne({ verificationToken: req.params.token });
+
+    if (!user) return res.send("Invalid or expired verification link.");
+    if (user.tokenExpiry < new Date()) return res.send("Verification link has expired. Please register again.");
+
+    // Mark as verified
+    await usersCollection.updateOne(
+      { _id: user._id },
+      { 
+        $set: { isEmailVerified: true, updatedAt: new Date() },
+        $unset: { verificationToken: "", tokenExpiry: "" }
+      }
+    );
+
+    res.send(`
+      <h2>Email Verified!</h2>
+      <p>Your account has been verified successfully.</p>
+      <a href="/users/login">Proceed to Login</a>
+    `);
+  } catch (err) {
+    console.error("Error verifying email:", err);
+    res.send("Something went wrong during verification.");
+  }
+});
+
+// Show login form
 router.get('/login', (req, res) => {
   res.render('login', { title: "Login" });
 });
 
-// ✅ Handle login form
+// Handle login
 router.post('/login', async (req, res) => {
   try {
-    await client.connect();
-    const db = client.db(dbName);
+    const db = req.app.locals.client.db(req.app.locals.dbName);
     const usersCollection = db.collection('users');
 
     const user = await usersCollection.findOne({ email: req.body.email });
@@ -72,16 +111,23 @@ router.post('/login', async (req, res) => {
       return res.send("Account is not active.");
     }
 
+    // Block login if not verified
+    if (!user.isEmailVerified) {
+      return res.send("Please verify your email before logging in.");
+    }
+
     const isPasswordValid = await bcrypt.compare(req.body.password, user.passwordHash);
     if (!isPasswordValid) return res.send("Invalid password.");
 
-    // ✅ Save session
+    // Save session
     req.session.user = {
+      _id: user._id,
       userId: user.userId,
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
-      role: user.role
+      role: user.role,
+      isEmailVerified: user.isEmailVerified
     };
 
     res.redirect('/users/dashboard');
@@ -108,26 +154,67 @@ router.get('/logout', (req, res) => {
   });
 });
 
-// Admin view
-router.get('/admin', async (req, res) => {
-  if (!req.session.user || req.session.user.role !== 'admin') {
-    return res.status(403).send("Access denied.");
-  }
-
+// User list
+router.get('/list', async (req, res, next) => {
   try {
     const db = req.app.locals.client.db(req.app.locals.dbName);
-    const users = await db.collection('users').find().toArray();
+    const users = await db.collection('users')
+      .find({}, { projection: { passwordHash: 0 } })
+      .toArray();
 
-    res.render('admin', {
-      title: "Admin Dashboard",
-      users,
-      currentUser: req.session.user
-    });
+    res.render('user-list', { title: "User List", users });
   } catch (err) {
-    console.error("Error loading admin dashboard:", err);
+    next(err);
+  }
+});
+
+// Edit user (GET)
+router.get('/edit/:id', async (req, res) => {
+  try {
+    const db = req.app.locals.client.db(req.app.locals.dbName);
+    const user = await db.collection('users')
+      .findOne({ _id: new ObjectId(req.params.id) });
+    if (!user) return res.send("User not found.");
+
+    res.render('edit-user', { title: "Edit User", user }); 
+  } catch (err) {
+    console.error("Error loading user:", err);
     res.send("Something went wrong.");
   }
 });
 
+// Edit user (POST update)
+router.post('/edit/:id', async (req, res, next) => {
+  try {
+    const db = req.app.locals.client.db(req.app.locals.dbName);
+    await db.collection('users').updateOne(
+      { _id: new ObjectId(req.params.id) },
+      {
+        $set: {
+          firstName: req.body.firstName,
+          lastName: req.body.lastName,
+          email: req.body.email,
+          updatedAt: new Date()
+        }
+      }
+    );
+
+    res.redirect('/users/list');
+  } catch (err) {
+    next(err);
+  }
+});
+
+// Delete user
+router.post('/delete/:id', async (req, res, next) => {
+  try {
+    const db = req.app.locals.client.db(req.app.locals.dbName);
+    await db.collection('users').deleteOne({ _id: new ObjectId(req.params.id) });
+
+    res.redirect('/users/list');
+  } catch (err) {
+    next(err);
+  }
+});
 
 module.exports = router;
