@@ -115,9 +115,24 @@ router.get('/verify/:token', async (req, res) => {
   }
 });
 
-// Show login form
+// Show login form - UPDATED
 router.get('/login', (req, res) => {
-  res.render('login', { title: "Login" });
+  let message = null;
+  
+  // Check for logout message
+  if (req.query.logout === 'true') {
+    message = "You have been logged out.";
+  }
+  
+  // Check for session expired message
+  if (req.query.expired === 'true') {
+    message = "Your session has expired. Please log in again.";
+  }
+  
+  res.render('login', { 
+    title: "Login",
+    message: message
+  });
 });
 
 // Handle login
@@ -159,9 +174,10 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Dashboard route
+// Dashboard route - UPDATED
 router.get('/dashboard', (req, res) => {
-  if (!req.session.user) return res.redirect('/users/login');
+  // This check is now handled by middleware, but keep for safety
+  if (!req.session.user) return res.redirect('/users/login?expired=true');
 
   res.render('dashboard', {
     title: "User Dashboard",
@@ -169,14 +185,14 @@ router.get('/dashboard', (req, res) => {
   });
 });
 
-// Logout route
+// Logout route - UPDATED
 router.get('/logout', (req, res) => {
   req.session.destroy((err) => {
     if (err) {
       console.error("Error destroying session:", err);
       return res.send("Something went wrong during logout.");
     }
-    res.redirect('/users/login');
+    res.redirect('/users/login?logout=true');
   });
 });
 

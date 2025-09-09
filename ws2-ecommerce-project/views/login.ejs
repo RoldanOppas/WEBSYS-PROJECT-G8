@@ -2,9 +2,34 @@
 <html>
 <head>
   <title><%= title %></title>
+  <style>
+    .message {
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 4px;
+      text-align: center;
+    }
+    .logout-message {
+      background-color: #d4edda;
+      border: 1px solid #c3e6cb;
+      color: #155724;
+    }
+    .expired-message {
+      background-color: #f8d7da;
+      border: 1px solid #f5c6cb;
+      color: #721c24;
+    }
+  </style>
 </head>
 <body>
   <h1>Login</h1>
+  
+  <% if (locals.message) { %>
+    <div class="message <%= message.includes('logged out') ? 'logout-message' : 'expired-message' %>">
+      <%= message %>
+    </div>
+  <% } %>
+  
   <form action="/users/login" method="POST">
     <label for="email">Email:</label><br>
     <input type="email" name="email" required><br><br>
@@ -15,6 +40,7 @@
     <button type="submit">Login</button>
   </form>
 
-  <p>Don’t have an account? <a href="/users/register">Register here</a></p>
+  <p>Don't have an account? <a href="/users/register">Register here</a></p>
+  <p><a href="/password/forgot">Forgot Password?</a></p>
 </body>
 </html>

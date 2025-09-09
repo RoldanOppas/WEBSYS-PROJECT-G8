@@ -22,9 +22,30 @@ app.use(session({
   saveUninitialized: false,
   cookie: { 
     secure: false, // set true in production with HTTPS
-    maxAge: 15 * 60 * 1000 // 15 minutes (in milliseconds)
+    maxAge: 1 * 60 * 1000 // 1 minute for testing
   }
 }));
+
+// Session timeout middleware - ADD THIS
+app.use((req, res, next) => {
+  // Routes that don't require authentication
+  const publicRoutes = ['/', '/users/login', '/users/register', '/password/forgot'];
+  const isPublicRoute = publicRoutes.includes(req.path) || 
+                       req.path.startsWith('/password/reset/') ||
+                       req.path.startsWith('/users/verify/');
+  
+  if (!isPublicRoute) {
+    // Check if user session exists
+    if (!req.session.user) {
+      return res.redirect('/users/login?expired=true');
+    }
+    
+    // Update session activity timestamp
+    req.session.lastActivity = Date.now();
+  }
+  
+  next();
+});
 
 // MongoDB Setup
 const uri = process.env.MONGO_URI;
@@ -37,9 +58,11 @@ app.locals.dbName = process.env.DB_NAME || "ecommerceDB";
 // Routes
 const indexRoute = require('./routes/index');
 const usersRoute = require('./routes/users');
+const passwordRoute = require('./routes/password');
 
 app.use('/', indexRoute);
 app.use('/users', usersRoute);
+app.use('/password', passwordRoute);
 
 // Updated server startup with MongoDB connection
 async function main() {
