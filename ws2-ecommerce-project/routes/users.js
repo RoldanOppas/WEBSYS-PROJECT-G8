@@ -1,5 +1,6 @@
 // routes/users.js
 const { v4: uuidv4 } = require('uuid');
+const { Resend } = require('resend');
 
 const express = require('express');
 const router = express.Router();
@@ -7,6 +8,9 @@ const { ObjectId } = require('mongodb');
 const bcrypt = require('bcryptjs');
 
 const saltRounds = 12; // for bcrypt hashing
+
+// Initialize Resend
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Show registration form
 router.get('/register', (req, res) => {
@@ -49,11 +53,29 @@ router.post('/register', async (req, res) => {
     // 5. Insert into database
     await usersCollection.insertOne(newUser);
 
-    // 6. Show simulated verification link
+    // 6. Build verification URL
+    const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
+    const verificationUrl = `${baseUrl}/users/verify/${token}`;
+
+    // 7. Send verification email using Resend
+    await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL,
+      to: newUser.email,
+      subject: 'Verify your account',
+      html: `
+        <h2>Welcome, ${newUser.firstName}!</h2>
+        <p>Thank you for registering. Please verify your email by clicking the link below:</p>
+        <a href="${verificationUrl}">${verificationUrl}</a>
+        <p>This link will expire in 1 hour.</p>
+      `
+    });
+
+    // 8. Show success message (no verification link displayed)
     res.send(`
       <h2>Registration Successful!</h2>
-      <p>Please verify your account before logging in.</p>
-      <p><a href="/users/verify/${token}">Click here to verify</a></p>
+      <p>A verification email has been sent to <strong>${newUser.email}</strong>.</p>
+      <p>Please check your inbox and click the verification link to activate your account.</p>
+      <p><a href="/users/login">Back to Login</a></p>
     `);
 
   } catch (err) {
