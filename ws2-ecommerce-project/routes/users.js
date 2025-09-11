@@ -12,6 +12,14 @@ const saltRounds = 12; // for bcrypt hashing
 // Initialize Resend
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// Admin authorization middleware
+function requireAdmin(req, res, next) {
+  if (!req.session.user || req.session.user.role !== 'admin') {
+    return res.status(403).send("Access denied. Admin privileges required.");
+  }
+  next();
+}
+
 // Show registration form
 router.get('/register', (req, res) => {
   res.render('register', { title: "Register" });
@@ -185,6 +193,23 @@ router.get('/dashboard', (req, res) => {
   });
 });
 
+// Admin view
+router.get('/admin', requireAdmin, async (req, res) => {
+  try {
+    const db = req.app.locals.client.db(req.app.locals.dbName);
+    const users = await db.collection('users').find().toArray();
+    
+    res.render('admin', {
+      title: "Admin Dashboard",
+      users,
+      currentUser: req.session.user
+    });
+  } catch (err) {
+    console.error("Error loading admin page:", err);
+    res.send("Something went wrong.");
+  }
+});
+
 // Logout route - UPDATED
 router.get('/logout', (req, res) => {
   req.session.destroy((err) => {
@@ -197,7 +222,7 @@ router.get('/logout', (req, res) => {
 });
 
 // User list
-router.get('/list', async (req, res, next) => {
+router.get('/list', requireAdmin, async (req, res, next) => {
   try {
     const db = req.app.locals.client.db(req.app.locals.dbName);
     const users = await db.collection('users')
@@ -210,8 +235,8 @@ router.get('/list', async (req, res, next) => {
   }
 });
 
-// Edit user (GET)
-router.get('/edit/:id', async (req, res) => {
+// Edit user (GET) - UPDATED with admin check
+router.get('/edit/:id', requireAdmin, async (req, res) => {
   try {
     const db = req.app.locals.client.db(req.app.locals.dbName);
     const user = await db.collection('users')
@@ -225,35 +250,50 @@ router.get('/edit/:id', async (req, res) => {
   }
 });
 
-// Edit user (POST update)
-router.post('/edit/:id', async (req, res, next) => {
+// Edit user (POST update) - UPDATED with admin check and proper fields
+router.post('/edit/:id', requireAdmin, async (req, res, next) => {
   try {
     const db = req.app.locals.client.db(req.app.locals.dbName);
+    
+    const updateFields = {
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+      email: req.body.email,
+      updatedAt: new Date()
+    };
+
+    // Only allow role and status changes if provided
+    if (req.body.role) {
+      updateFields.role = req.body.role;
+    }
+    if (req.body.accountStatus) {
+      updateFields.accountStatus = req.body.accountStatus;
+    }
+
     await db.collection('users').updateOne(
       { _id: new ObjectId(req.params.id) },
-      {
-        $set: {
-          firstName: req.body.firstName,
-          lastName: req.body.lastName,
-          email: req.body.email,
-          updatedAt: new Date()
-        }
-      }
+      { $set: updateFields }
     );
 
-    res.redirect('/users/list');
+    res.redirect('/users/admin');
   } catch (err) {
     next(err);
   }
 });
 
-// Delete user
-router.post('/delete/:id', async (req, res, next) => {
+// Delete user - UPDATED with admin check and safety measures
+router.post('/delete/:id', requireAdmin, async (req, res, next) => {
   try {
     const db = req.app.locals.client.db(req.app.locals.dbName);
+    
+    // Prevent admin from deleting themselves
+    const userToDelete = await db.collection('users').findOne({ _id: new ObjectId(req.params.id) });
+    if (userToDelete && userToDelete.userId === req.session.user.userId) {
+      return res.send("You cannot delete your own account.");
+    }
+    
     await db.collection('users').deleteOne({ _id: new ObjectId(req.params.id) });
-
-    res.redirect('/users/list');
+    res.redirect('/users/admin');
   } catch (err) {
     next(err);
   }

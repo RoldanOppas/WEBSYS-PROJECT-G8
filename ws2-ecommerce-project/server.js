@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const { MongoClient } = require('mongodb');
 const session = require('express-session');
 const path = require('path');
+
 require('dotenv').config();
 
 const app = express();
@@ -15,6 +16,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+// Serve static files from public directory
+app.use(express.static(path.join(__dirname, 'public')));
+
+
+
 // Session setup - UPDATED with timeout
 app.use(session({
   secret: process.env.SESSION_SECRET || 'dev-secret', // keep secret in .env
@@ -22,7 +28,7 @@ app.use(session({
   saveUninitialized: false,
   cookie: { 
     secure: false, // set true in production with HTTPS
-    maxAge: 1 * 60 * 1000 // 1 minute for testing
+    maxAge: 15 * 60 * 1000 // 15 minutes for testing
   }
 }));
 

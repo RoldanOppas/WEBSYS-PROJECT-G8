@@ -1,24 +1,68 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title><%= title %></title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/styles/main.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <h1>User Registration</h1>
-  <form action="/users/register" method="POST">
-    <label for="firstName">First Name:</label><br>
-    <input type="text" id="firstName" name="firstName" required><br><br>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="sidebar-logo" style="margin: 0 auto 1rem;">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <h1 class="auth-title">Create Account</h1>
+                <p class="auth-subtitle">Join us today and get started</p>
+            </div>
+            
+            <form class="auth-form" action="/users/register" method="POST">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label for="firstName" class="form-label">
+                            <i class="fas fa-user" style="margin-right: 0.5rem;"></i>
+                            First Name
+                        </label>
+                        <input type="text" id="firstName" name="firstName" class="form-control" placeholder="First name" required>
+                    </div>
 
-    <label for="lastName">Last Name:</label><br>
-    <input type="text" id="lastName" name="lastName" required><br><br>
+                    <div class="form-group">
+                        <label for="lastName" class="form-label">Last Name</label>
+                        <input type="text" id="lastName" name="lastName" class="form-control" placeholder="Last name" required>
+                    </div>
+                </div>
 
-    <label for="email">Email:</label><br>
-    <input type="email" id="email" name="email" required><br><br>
+                <div class="form-group">
+                    <label for="email" class="form-label">
+                        <i class="fas fa-envelope" style="margin-right: 0.5rem;"></i>
+                        Email Address
+                    </label>
+                    <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email" required>
+                </div>
 
-    <label for="password">Password:</label><br>
-    <input type="password" id="password" name="password" required><br><br>
+                <div class="form-group">
+                    <label for="password" class="form-label">
+                        <i class="fas fa-lock" style="margin-right: 0.5rem;"></i>
+                        Password
+                    </label>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Create a strong password" required>
+                </div>
 
-    <button type="submit">Register</button>
-  </form>
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.875rem;">
+                    <i class="fas fa-user-plus" style="margin-right: 0.5rem;"></i>
+                    Create Account
+                </button>
+            </form>
+
+            <div class="auth-links">
+                <p>
+                    Already have an account? <a href="/users/login">Sign in here</a>
+                </p>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
