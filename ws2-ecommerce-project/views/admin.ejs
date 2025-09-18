@@ -6,31 +6,606 @@
     <title><%= title %></title>
     <link rel="stylesheet" href="/styles/main.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Enhanced Admin Dashboard Styles */
+        .dashboard-layout {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+        }
+
+        /* Premium Admin Sidebar */
+        .sidebar {
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, #dc2626, #ef4444, #f97316);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="admin-pattern" width="25" height="25" patternUnits="userSpaceOnUse"><circle cx="12.5" cy="12.5" r="1.5" fill="white" opacity="0.15"/><circle cx="5" cy="5" r="0.8" fill="white" opacity="0.1"/><circle cx="20" cy="8" r="0.6" fill="white" opacity="0.08"/></pattern></defs><rect width="100" height="100" fill="url(%23admin-pattern)"/></svg>');
+        }
+
+        .sidebar-logo {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .sidebar-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff, #fef3c7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Enhanced Admin Header */
+        .header {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(25px);
+            border-bottom: 1px solid rgba(220, 38, 38, 0.1);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .user-menu {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.1), rgba(239, 68, 68, 0.1));
+            border: 2px solid rgba(220, 38, 38, 0.2);
+        }
+
+        /* Enhanced Stats Cards */
+        .stats-grid {
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2.5rem;
+            box-shadow: 0 8px 35px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(135deg, var(--primary-color), #8b5cf6, #ec4899);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-icon {
+            width: 70px;
+            height: 70px;
+            border-radius: 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-value {
+            font-size: 3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--text-primary), #dc2626);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Enhanced Admin Table */
+        .card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            border-bottom: 2px solid rgba(220, 38, 38, 0.1);
+            padding: 2rem;
+        }
+
+        .card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--text-primary), #dc2626);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .search-input {
+            position: relative;
+            background: white;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            border: 2px solid rgba(220, 38, 38, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus-within {
+            border-color: #dc2626;
+            box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1);
+            transform: scale(1.02);
+        }
+
+        .search-input input {
+            padding: 0.875rem 1rem 0.875rem 3rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            width: 250px;
+            background: transparent;
+        }
+
+        .search-input i {
+            position: absolute;
+            left: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #dc2626;
+            font-size: 1.1rem;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            background: white;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .table th {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            padding: 1.5rem 2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border-bottom: 2px solid rgba(220, 38, 38, 0.1);
+        }
+
+        .table td {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            vertical-align: middle;
+        }
+
+        .table tbody tr {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .table tbody tr:hover {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.02), rgba(239, 68, 68, 0.02));
+            transform: scale(1.01);
+            box-shadow: 0 4px 20px rgba(220, 38, 38, 0.1);
+        }
+
+        .table tbody tr:hover::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+        }
+
+        /* Enhanced User Avatars in Table */
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .table-user-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            background: linear-gradient(135deg, var(--primary-color), #8b5cf6, #ec4899);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: white;
+            font-size: 1.1rem;
+            border: 3px solid white;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .user-details {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: 700;
+            color: var(--text-primary);
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .user-id {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            font-family: 'Monaco', monospace;
+            background: rgba(220, 38, 38, 0.1);
+            padding: 0.2rem 0.5rem;
+            border-radius: 6px;
+            display: inline-block;
+        }
+
+        /* Enhanced Status Badges */
+        .status-badge {
+            padding: 0.5rem 1.25rem;
+            border-radius: 25px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-badge::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: currentColor;
+            opacity: 0.3;
+        }
+
+        .status-badge.admin {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            color: white;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+        }
+
+        .status-badge.user {
+            background: linear-gradient(135deg, var(--primary-color), #3b82f6);
+            color: white;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .status-badge.active {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .status-badge.inactive {
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+            color: white;
+            box-shadow: 0 4px 15px rgba(107, 114, 128, 0.3);
+        }
+
+        /* Enhanced Verification Icons */
+        .verification-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+        }
+
+        .verification-status.verified {
+            color: #10b981;
+        }
+
+        .verification-status.unverified {
+            color: #f59e0b;
+        }
+
+        .verification-status i {
+            font-size: 1.25rem;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        }
+
+        /* Enhanced Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+
+        .btn {
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            color: white;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, var(--primary-color), #3b82f6);
+            color: white;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #f87171);
+            color: white;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+        }
+
+        /* Table Actions */
+        .table-actions {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+        }
+
+        .action-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px) scale(1.1);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Enhanced Date Display */
+        .date-display {
+            font-family: 'Monaco', monospace;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            background: rgba(107, 114, 128, 0.1);
+            padding: 0.25rem 0.75rem;
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        /* Admin Header Actions */
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .header-filter {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: white;
+            padding: 0.5rem 1rem;
+            border-radius: 12px;
+            border: 2px solid rgba(220, 38, 38, 0.1);
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .header-filter:hover {
+            border-color: #dc2626;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.1);
+        }
+
+        .export-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, #059669, #10b981);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .export-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(5, 150, 105, 0.3);
+        }
+
+        /* Loading States */
+        .loading-row {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        /* Responsive Enhancements */
+        @media (max-width: 1200px) {
+            .header-actions {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+            
+            .search-input input {
+                width: 200px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .table th,
+            .table td {
+                padding: 1rem;
+                font-size: 0.875rem;
+            }
+            
+            .user-profile {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .table-user-avatar {
+                width: 40px;
+                height: 40px;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+                gap: 0.5rem;
+            }
+        }
+
+        /* Animation Classes */
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-slide-up {
+            animation: slideInUp 0.6s ease-out forwards;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+        }
+    </style>
 </head>
 <body>
     <div class="dashboard-layout">
-        <!-- Sidebar -->
+        <!-- Enhanced Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="sidebar-logo">
                     <i class="fas fa-user-shield"></i>
                 </div>
-                <div class="sidebar-title">UserHub</div>
+                <div class="sidebar-title">AdminHub</div>
             </div>
             
             <nav class="sidebar-nav">
                 <div class="nav-section">
-                    <div class="nav-section-title">Main</div>
+                    <div class="nav-section-title">Dashboard</div>
                     <div class="nav-item">
                         <a href="/users/dashboard" class="nav-link">
-                            <i class="fas fa-home"></i>
-                            Dashboard
+                            <i class="fas fa-chart-line"></i>
+                            Overview
                         </a>
+                    </div>
                     <div class="nav-item">
                         <a href="#" class="nav-link">
                             <i class="fas fa-user-edit"></i>
-                            Edit Profile
+                            Profile Settings
                         </a>
                     </div>
                 </div>
@@ -45,24 +620,36 @@
                     </div>
                     <div class="nav-item">
                         <a href="#" class="nav-link">
+                            <i class="fas fa-box"></i>
+                            Product Management
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-shopping-cart"></i>
+                            Order Management
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="#" class="nav-link">
                             <i class="fas fa-chart-bar"></i>
-                            Analytics
+                            Analytics & Reports
                         </a>
                     </div>
                     <div class="nav-item">
                         <a href="#" class="nav-link">
                             <i class="fas fa-cog"></i>
-                            Settings
+                            System Settings
                         </a>
                     </div>
                 </div>
                 
                 <div class="nav-section">
-                    <div class="nav-section-title">Account</div>
+                    <div class="nav-section-title">Support</div>
                     <div class="nav-item">
                         <a href="#" class="nav-link">
-                            <i class="fas fa-key"></i>
-                            Change Password
+                            <i class="fas fa-life-ring"></i>
+                            Help Center
                         </a>
                     </div>
                     <div class="nav-item">
@@ -74,7 +661,7 @@
                     <div class="nav-item">
                         <a href="/users/logout" class="nav-link">
                             <i class="fas fa-sign-out-alt"></i>
-                            Logout
+                            Sign Out
                         </a>
                     </div>
                 </div>
@@ -83,13 +670,13 @@
         
         <!-- Main Content -->
         <div class="main-content">
-            <!-- Header -->
+            <!-- Enhanced Header -->
             <header class="header">
                 <div class="header-left">
                     <button class="sidebar-toggle" id="sidebarToggle">
                         <i class="fas fa-bars"></i>
                     </button>
-                    <h1 class="page-title">User Management</h1>
+                    <h1 class="page-title">User Management Console</h1>
                 </div>
                 
                 <div class="header-right">
@@ -104,7 +691,7 @@
                             <div class="user-name">
                                 <%= currentUser.firstName || '' %> <%= currentUser.lastName || '' %>
                             </div>
-                            <div class="user-role"><%= currentUser.role %></div>
+                            <div class="user-role">Administrator</div>
                         </div>
                         <i class="fas fa-chevron-down"></i>
                     </div>
@@ -113,10 +700,10 @@
             
             <!-- Content -->
             <main class="content">
-                <!-- Admin Stats -->
+                <!-- Enhanced Stats Grid -->
                 <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon primary">
+                    <div class="stat-card animate-slide-up">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, var(--primary-color), #3b82f6);">
                             <i class="fas fa-users"></i>
                         </div>
                         <div class="stat-content">
@@ -125,8 +712,8 @@
                         </div>
                     </div>
                     
-                    <div class="stat-card">
-                        <div class="stat-icon success">
+                    <div class="stat-card animate-slide-up">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
                             <i class="fas fa-user-check"></i>
                         </div>
                         <div class="stat-content">
@@ -135,19 +722,19 @@
                         </div>
                     </div>
                     
-                    <div class="stat-card">
-                        <div class="stat-icon info">
+                    <div class="stat-card animate-slide-up">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #dc2626, #ef4444);">
                             <i class="fas fa-user-shield"></i>
                         </div>
                         <div class="stat-content">
                             <div class="stat-value"><%= users.filter(u => u.role === 'admin').length %></div>
-                            <div class="stat-label">Admins</div>
+                            <div class="stat-label">Administrators</div>
                         </div>
                     </div>
                     
-                    <div class="stat-card">
-                        <div class="stat-icon warning">
-                            <i class="fas fa-envelope-open-text"></i>
+                    <div class="stat-card animate-slide-up">
+                        <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                            <i class="fas fa-envelope-circle-check"></i>
                         </div>
                         <div class="stat-content">
                             <div class="stat-value"><%= users.filter(u => u.isEmailVerified).length %></div>
@@ -156,15 +743,24 @@
                     </div>
                 </div>
                 
-                <!-- Users Table -->
+                <!-- Enhanced Users Table -->
                 <div class="card">
-                    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-                        <h3 class="card-title">All Users</h3>
-                        <div style="display: flex; gap: 1rem; align-items: center;">
-                            <div style="position: relative;">
-                                <i class="fas fa-search" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-light);"></i>
-                                <input type="text" placeholder="Search users..." style="padding: 0.5rem 0.75rem 0.5rem 2.5rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); font-size: 0.875rem;">
+                    <div class="card-header">
+                        <h3 class="card-title">User Directory</h3>
+                        <div class="header-actions">
+                            <div class="search-input">
+                                <i class="fas fa-search"></i>
+                                <input type="text" placeholder="Search users..." id="userSearch">
                             </div>
+                            <div class="header-filter">
+                                <i class="fas fa-filter"></i>
+                                <span>All Users</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </div>
+                            <button class="export-btn">
+                                <i class="fas fa-download"></i>
+                                Export
+                            </button>
                             <button class="btn btn-primary">
                                 <i class="fas fa-plus"></i>
                                 Add User
@@ -177,104 +773,437 @@
                             <thead>
                                 <tr>
                                     <th>
-                                        <i class="fas fa-user" style="margin-right: 0.5rem;"></i>
-                                        User
+                                        <i class="fas fa-user"></i>
+                                        User Profile
                                     </th>
                                     <th>
-                                        <i class="fas fa-envelope" style="margin-right: 0.5rem;"></i>
-                                        Email
+                                        <i class="fas fa-envelope"></i>
+                                        Contact
                                     </th>
                                     <th>
-                                        <i class="fas fa-user-tag" style="margin-right: 0.5rem;"></i>
+                                        <i class="fas fa-user-tag"></i>
                                         Role
                                     </th>
                                     <th>
-                                        <i class="fas fa-check-circle" style="margin-right: 0.5rem;"></i>
+                                        <i class="fas fa-toggle-on"></i>
                                         Status
                                     </th>
                                     <th>
-                                        <i class="fas fa-shield-check" style="margin-right: 0.5rem;"></i>
-                                        Verified
+                                        <i class="fas fa-shield-check"></i>
+                                        Verification
                                     </th>
                                     <th>
-                                        <i class="fas fa-calendar" style="margin-right: 0.5rem;"></i>
-                                        Created
+                                        <i class="fas fa-calendar-alt"></i>
+                                        Joined
                                     </th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                <% users.forEach(user => { %>
+                            <tbody id="usersTableBody">
+                                <% if (users.length === 0) { %>
                                 <tr>
+                                    <td colspan="7">
+                                        <div class="empty-state">
+                                            <i class="fas fa-users"></i>
+                                            <h3>No users found</h3>
+                                            <p>Start by adding your first user to the system.</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <% } else { %>
+                                <% users.forEach(user => { %>
+                                <tr data-user-id="<%= user._id %>">
                                     <td>
-                                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                            <div class="user-avatar" style="width: 32px; height: 32px; font-size: 0.75rem;">
+                                        <div class="user-profile">
+                                            <div class="table-user-avatar">
                                                 <%= 
                                                   (user.firstName ? user.firstName.charAt(0).toUpperCase() : '') +
                                                   (user.lastName ? user.lastName.charAt(0).toUpperCase() : '') 
                                                 %>
                                             </div>
-                                            <div>
-                                                <div style="font-weight: 600; color: var(--text-primary);">
+                                            <div class="user-details">
+                                                <div class="user-name">
                                                     <%= user.firstName || '' %> <%= user.lastName || '' %>
                                                 </div>
-                                                <div style="font-size: 0.75rem; color: var(--text-light);">
-                                                    ID: <%= user.userId %>
-                                                </div>
+                                                <div class="user-id">ID: <%= user.userId %></div>
                                             </div>
                                         </div>
                                     </td>
-                                    <td style="color: var(--text-secondary);"><%= user.email %></td>
+<td>
+                                        <div>
+                                            <div style="font-weight: 600; color: var(--text-primary); margin-bottom: 0.25rem;">
+                                                <%= user.email %>
+                                            </div>
+                                            <div style="font-size: 0.8rem; color: var(--text-light);">
+                                                <i class="fas fa-at" style="margin-right: 0.25rem;"></i>
+                                                Primary Contact
+                                            </div>
+                                        </div>
+                                    </td>
                                     <td>
-                                        <span class="status-badge <%= user.role === 'admin' ? 'info' : 'active' %>">
-                                            <%= user.role %>
+                                        <span class="status-badge <%= user.role === 'admin' ? 'admin' : 'user' %>">
+                                            <i class="fas fa-<%= user.role === 'admin' ? 'user-shield' : 'user' %>"></i>
+                                            <%= user.role === 'admin' ? 'Administrator' : 'Customer' %>
                                         </span>
                                     </td>
                                     <td>
                                         <span class="status-badge <%= user.accountStatus === 'active' ? 'active' : 'inactive' %>">
+                                            <i class="fas fa-<%= user.accountStatus === 'active' ? 'check-circle' : 'times-circle' %>"></i>
                                             <%= user.accountStatus || 'active' %>
                                         </span>
                                     </td>
                                     <td>
-                                        <% if (user.isEmailVerified) { %>
-                                            <i class="fas fa-check-circle" style="color: var(--success-color);"></i>
-                                            <span style="margin-left: 0.5rem; color: var(--success-color);">Yes</span>
-                                        <% } else { %>
-                                            <i class="fas fa-times-circle" style="color: var(--warning-color);"></i>
-                                            <span style="margin-left: 0.5rem; color: var(--warning-color);">No</span>
-                                        <% } %>
-                                    </td>
-                                    <td style="color: var(--text-secondary);">
-                                        <%= user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { 
-                                            year: 'numeric', 
-                                            month: 'short', 
-                                            day: 'numeric' 
-                                        }) : 'N/A' %>
+                                        <div class="verification-status <%= user.isEmailVerified ? 'verified' : 'unverified' %>">
+                                            <% if (user.isEmailVerified) { %>
+                                                <i class="fas fa-check-circle"></i>
+                                                <span>Verified</span>
+                                            <% } else { %>
+                                                <i class="fas fa-clock"></i>
+                                                <span>Pending</span>
+                                            <% } %>
+                                        </div>
                                     </td>
                                     <td>
-                                        <div style="display: flex; gap: 0.5rem;">
-                                            <a href="/users/edit/<%= user._id %>" class="btn btn-secondary" style="padding: 0.375rem 0.75rem;" title="Edit User">
+                                        <div class="date-display">
+                                            <%= user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { 
+                                                year: 'numeric', 
+                                                month: 'short', 
+                                                day: 'numeric' 
+                                            }) : 'N/A' %>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div class="table-actions">
+                                            <a href="/users/edit/<%= user._id %>" class="btn btn-secondary action-btn" title="Edit User">
                                                 <i class="fas fa-edit"></i>
                                             </a>
+                                            <button class="btn btn-secondary action-btn" title="View Details" onclick="viewUserDetails('<%= user._id %>')">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
                                             <% if (user.userId !== currentUser.userId) { %>
-                                            <form action="/users/delete/<%= user._id %>" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this user? This action cannot be undone.')">
-                                                <button type="submit" class="btn btn-danger" style="padding: 0.375rem 0.75rem;" title="Delete User">
+                                            <form action="/users/delete/<%= user._id %>" method="POST" style="display: inline;" onsubmit="return confirmDelete('<%= user.firstName %> <%= user.lastName %>')">
+                                                <button type="submit" class="btn btn-danger action-btn" title="Delete User">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
+                                            <% } else { %>
+                                            <button class="btn btn-secondary action-btn" title="Cannot delete yourself" disabled style="opacity: 0.5; cursor: not-allowed;">
+                                                <i class="fas fa-shield-alt"></i>
+                                            </button>
                                             <% } %>
                                         </div>
                                     </td>
                                 </tr>
                                 <% }) %>
+                                <% } %>
                             </tbody>
                         </table>
+                    </div>
+                </div>
+                
+                <!-- User Management Actions -->
+                <div class="action-panel" style="margin-top: 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+                    <!-- Bulk Actions -->
+                    <div class="card" style="padding: 2rem;">
+                        <h3 style="margin-bottom: 1.5rem; color: var(--text-primary); font-family: 'Playfair Display', serif;">
+                            <i class="fas fa-tasks" style="margin-right: 0.5rem; color: #dc2626;"></i>
+                            Bulk Actions
+                        </h3>
+                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                            <button class="btn btn-secondary" style="justify-content: flex-start;">
+                                <i class="fas fa-envelope"></i>
+                                Send Verification Emails
+                            </button>
+                            <button class="btn btn-secondary" style="justify-content: flex-start;">
+                                <i class="fas fa-download"></i>
+                                Export User Data
+                            </button>
+                            <button class="btn btn-secondary" style="justify-content: flex-start;">
+                                <i class="fas fa-bell"></i>
+                                Send Notification
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Quick Stats -->
+                    <div class="card" style="padding: 2rem;">
+                        <h3 style="margin-bottom: 1.5rem; color: var(--text-primary); font-family: 'Playfair Display', serif;">
+                            <i class="fas fa-chart-pie" style="margin-right: 0.5rem; color: #dc2626;"></i>
+                            Quick Insights
+                        </h3>
+                        <div style="display: flex; flex-direction: column; gap: 1rem;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: var(--text-secondary);">Verification Rate</span>
+                                <span style="font-weight: 700; color: var(--success-color);">
+                                    <%= Math.round((users.filter(u => u.isEmailVerified).length / users.length) * 100) || 0 %>%
+                                </span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: var(--text-secondary);">Admin Ratio</span>
+                                <span style="font-weight: 700; color: var(--info-color);">
+                                    <%= Math.round((users.filter(u => u.role === 'admin').length / users.length) * 100) || 0 %>%
+                                </span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: var(--text-secondary);">New This Month</span>
+                                <span style="font-weight: 700; color: var(--primary-color);">
+                                    <%= users.filter(u => u.createdAt && new Date(u.createdAt) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)).length %>
+                                </span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </main>
         </div>
     </div>
     
-    <script src="/js/main.js"></script>
+    <!-- User Details Modal -->
+    <div id="userModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 2000; backdrop-filter: blur(5px);">
+        <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; border-radius: 20px; padding: 2rem; width: 90%; max-width: 500px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                <h3 style="font-family: 'Playfair Display', serif; color: var(--text-primary);">User Details</h3>
+                <button onclick="closeUserModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-secondary);">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div id="userModalContent">
+                <!-- Content will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Enhanced Admin Dashboard JavaScript
+        
+        // Search functionality
+        const searchInput = document.getElementById('userSearch');
+        const tableBody = document.getElementById('usersTableBody');
+        const originalRows = Array.from(tableBody.querySelectorAll('tr'));
+        
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            
+            originalRows.forEach(row => {
+                const userData = row.textContent.toLowerCase();
+                const isMatch = userData.includes(searchTerm);
+                
+                if (isMatch) {
+                    row.style.display = '';
+                    row.style.animation = 'slideInUp 0.3s ease';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+            
+            // Show "no results" message if no matches
+            const visibleRows = originalRows.filter(row => row.style.display !== 'none');
+            if (visibleRows.length === 0 && searchTerm) {
+                showNoResultsMessage();
+            } else {
+                hideNoResultsMessage();
+            }
+        });
+        
+        function showNoResultsMessage() {
+            const existingMessage = document.querySelector('.no-results-message');
+            if (existingMessage) return;
+            
+            const message = document.createElement('tr');
+            message.className = 'no-results-message';
+            message.innerHTML = `
+                <td colspan="7" style="text-align: center; padding: 3rem;">
+                    <div style="color: var(--text-secondary);">
+                        <i class="fas fa-search" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                        <h4>No users found</h4>
+                        <p>Try adjusting your search terms</p>
+                    </div>
+                </td>
+            `;
+            tableBody.appendChild(message);
+        }
+        
+        function hideNoResultsMessage() {
+            const message = document.querySelector('.no-results-message');
+            if (message) message.remove();
+        }
+        
+        // Enhanced delete confirmation
+        function confirmDelete(userName) {
+            return confirm(`Are you sure you want to delete ${userName}?\n\nThis action cannot be undone and will permanently remove all user data.`);
+        }
+        
+        // User details modal
+        function viewUserDetails(userId) {
+            const modal = document.getElementById('userModal');
+            const content = document.getElementById('userModalContent');
+            
+            // Find user data from the table row
+            const row = document.querySelector(`tr[data-user-id="${userId}"]`);
+            if (!row) return;
+            
+            const userProfile = row.querySelector('.user-profile');
+            const userName = userProfile.querySelector('.user-name').textContent;
+            const userId_display = userProfile.querySelector('.user-id').textContent;
+            const email = row.cells[1].textContent.trim();
+            const role = row.cells[2].textContent.trim();
+            const status = row.cells[3].textContent.trim();
+            const verification = row.cells[4].textContent.trim();
+            const joinDate = row.cells[5].textContent.trim();
+            
+            content.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; padding: 1.5rem; background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(139, 92, 246, 0.1)); border-radius: 16px;">
+                    <div class="table-user-avatar" style="width: 60px; height: 60px;">
+                        ${userName.split(' ').map(n => n[0]).join('').toUpperCase()}
+                    </div>
+                    <div>
+                        <h4 style="margin-bottom: 0.25rem; color: var(--text-primary);">${userName}</h4>
+                        <p style="color: var(--text-secondary); margin: 0;">${userId_display}</p>
+                    </div>
+                </div>
+                
+                <div style="display: grid; gap: 1rem;">
+                    <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--border-light);">
+                        <span style="color: var(--text-secondary);">Email:</span>
+                        <span style="font-weight: 600;">${email}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--border-light);">
+                        <span style="color: var(--text-secondary);">Role:</span>
+                        <span style="font-weight: 600;">${role}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--border-light);">
+                        <span style="color: var(--text-secondary);">Status:</span>
+                        <span style="font-weight: 600;">${status}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid var(--border-light);">
+                        <span style="color: var(--text-secondary);">Email Verified:</span>
+                        <span style="font-weight: 600;">${verification}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 0.75rem 0;">
+                        <span style="color: var(--text-secondary);">Member Since:</span>
+                        <span style="font-weight: 600;">${joinDate}</span>
+                    </div>
+                </div>
+                
+                <div style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button onclick="closeUserModal()" class="btn btn-secondary">Close</button>
+                    <a href="/users/edit/${userId}" class="btn btn-primary">Edit User</a>
+                </div>
+            `;
+            
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeUserModal() {
+            const modal = document.getElementById('userModal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Close modal on outside click
+        document.getElementById('userModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeUserModal();
+            }
+        });
+        
+        // Sidebar toggle
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+        
+        sidebarToggle?.addEventListener('click', function() {
+            sidebar.classList.toggle('collapsed');
+            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+        });
+        
+        // Restore sidebar state
+        if (localStorage.getItem('sidebarCollapsed') === 'true') {
+            sidebar.classList.add('collapsed');
+        }
+        
+        // Enhanced table animations
+        const rows = document.querySelectorAll('.table tbody tr');
+        rows.forEach((row, index) => {
+            row.style.opacity = '0';
+            row.style.transform = 'translateY(20px)';
+            
+            setTimeout(() => {
+                row.style.transition = 'all 0.5s ease';
+                row.style.opacity = '1';
+                row.style.transform = 'translateY(0)';
+            }, index * 50);
+        });
+        
+        // Export functionality
+        document.querySelector('.export-btn')?.addEventListener('click', function() {
+            // Simulate export process
+            this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting...';
+            this.disabled = true;
+            
+            setTimeout(() => {
+                this.innerHTML = '<i class="fas fa-check"></i> Exported!';
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-download"></i> Export';
+                    this.disabled = false;
+                }, 2000);
+            }, 2000);
+        });
+        
+        // Notification system
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: white;
+                padding: 1rem 1.5rem;
+                border-radius: 12px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+                border-left: 4px solid ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                z-index: 1000;
+                animation: slideInRight 0.3s ease;
+                max-width: 400px;
+            `;
+            
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}" style="color: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};"></i>
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()" style="background: none; border: none; cursor: pointer; margin-left: auto;">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+        
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Show welcome message
+        setTimeout(() => {
+            showNotification('Admin dashboard loaded successfully', 'success');
+        }, 1000);
+    </script>
 </body>
 </html>

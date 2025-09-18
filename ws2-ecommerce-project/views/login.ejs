@@ -7,6 +7,46 @@
     <link rel="stylesheet" href="/styles/main.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .message {
+            margin-bottom: 1rem;
+            padding: 0.875rem 1rem;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .message i {
+            margin-right: 0.5rem;
+        }
+        .message.success {
+            background-color: #f0fdf4;
+            border: 1px solid #10b981;
+            color: #065f46;
+        }
+        .message.error {
+            background-color: #fef2f2;
+            border: 1px solid #ef4444;
+            color: #991b1b;
+        }
+        .form-control {
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        .form-control:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+        .btn {
+            transition: background-color 0.3s ease, transform 0.1s ease;
+        }
+        .btn:hover {
+            transform: translateY(-1px);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+    </style>
 </head>
 <body>
     <div class="auth-container">
@@ -20,19 +60,19 @@
             </div>
             
             <% if (locals.message) { %>
-                <div class="message <%= message.includes('logged out') ? 'success' : 'error' %>">
-                    <i class="fas fa-<%= message.includes('logged out') ? 'check-circle' : 'exclamation-circle' %>"></i>
+                <div class="message <%= message.includes('logged out') || message.includes('expired') ? 'success' : 'error' %>">
+                    <i class="fas fa-<%= message.includes('logged out') ? 'check-circle' : message.includes('expired') ? 'clock' : 'exclamation-circle' %>"></i>
                     <%= message %>
                 </div>
             <% } %>
             
-            <form class="auth-form" action="/users/login" method="POST">
+            <form class="auth-form" action="/users/login" method="POST" id="loginForm">
                 <div class="form-group">
                     <label for="email" class="form-label">
                         <i class="fas fa-envelope" style="margin-right: 0.5rem;"></i>
                         Email Address
                     </label>
-                    <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email" required>
+                    <input type="email" id="email" name="email" class="form-control" placeholder="Enter your email" required autocomplete="email">
                 </div>
 
                 <div class="form-group">
@@ -40,10 +80,10 @@
                         <i class="fas fa-lock" style="margin-right: 0.5rem;"></i>
                         Password
                     </label>
-                    <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
+                    <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required autocomplete="current-password">
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.875rem;">
+                <button type="submit" class="btn btn-primary" id="loginBtn" style="width: 100%; padding: 0.875rem;">
                     <i class="fas fa-sign-in-alt" style="margin-right: 0.5rem;"></i>
                     Sign In
                 </button>
@@ -51,13 +91,50 @@
 
             <div class="auth-links">
                 <p style="margin-bottom: 0.5rem;">
-                    <a href="/password/forgot">Forgot your password?</a>
+                    <a href="/password/forgot">
+                        <i class="fas fa-question-circle" style="margin-right: 0.25rem;"></i>
+                        Forgot your password?
+                    </a>
                 </p>
                 <p>
-                    Don't have an account? <a href="/users/register">Create one here</a>
+                    Don't have an account? 
+                    <a href="/users/register">
+                        <i class="fas fa-user-plus" style="margin-right: 0.25rem;"></i>
+                        Create one here
+                    </a>
                 </p>
             </div>
         </div>
     </div>
+
+    <script>
+        // Basic form validation and user experience improvements
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            
+            if (!email || !password) {
+                e.preventDefault();
+                alert('Please fill in all fields.');
+                return;
+            }
+            
+            // Disable button to prevent double submission
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 0.5rem;"></i>Signing In...';
+            
+            // Re-enable button after 3 seconds (in case of server error)
+            setTimeout(() => {
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt" style="margin-right: 0.5rem;"></i>Sign In';
+            }, 3000);
+        });
+
+        // Auto-focus email field
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('email').focus();
+        });
+    </script>
 </body>
 </html>

@@ -19,8 +19,6 @@ app.set('views', path.join(__dirname, 'views'));
 // Serve static files from public directory
 app.use(express.static(path.join(__dirname, 'public')));
 
-
-
 // Session setup - UPDATED with timeout
 app.use(session({
   secret: process.env.SESSION_SECRET || 'dev-secret', // keep secret in .env
@@ -32,11 +30,20 @@ app.use(session({
   }
 }));
 
-// Session timeout middleware - ADD THIS
+// Session timeout middleware - ENHANCED
 app.use((req, res, next) => {
   // Routes that don't require authentication
-  const publicRoutes = ['/', '/users/login', '/users/register', '/password/forgot'];
-  const isPublicRoute = publicRoutes.includes(req.path) || 
+  const publicRoutes = [
+    '/', 
+    '/users/login', 
+    '/users/register', 
+    '/password/forgot',
+    '/styles/', // Allow static files
+    '/scripts/',
+    '/images/'
+  ];
+  
+  const isPublicRoute = publicRoutes.some(route => req.path.startsWith(route)) || 
                        req.path.startsWith('/password/reset/') ||
                        req.path.startsWith('/users/verify/');
   
@@ -46,8 +53,21 @@ app.use((req, res, next) => {
       return res.redirect('/users/login?expired=true');
     }
     
+    // Check for session timeout (15 minutes of inactivity)
+    const now = Date.now();
+    const lastActivity = req.session.lastActivity || now;
+    const timeoutDuration = 15 * 60 * 1000; // 15 minutes
+    
+    if (now - lastActivity > timeoutDuration) {
+      // Session expired due to inactivity
+      req.session.destroy((err) => {
+        if (err) console.error("Session destruction error:", err);
+      });
+      return res.redirect('/users/login?expired=true');
+    }
+    
     // Update session activity timestamp
-    req.session.lastActivity = Date.now();
+    req.session.lastActivity = now;
   }
   
   next();
@@ -70,6 +90,12 @@ app.use('/', indexRoute);
 app.use('/users', usersRoute);
 app.use('/password', passwordRoute);
 
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  res.status(500).send('Something went wrong!');
+});
+
 // Updated server startup with MongoDB connection
 async function main() {
   try {
@@ -82,7 +108,15 @@ async function main() {
     });
   } catch (err) {
     console.error("MongoDB connection failed", err);
+    process.exit(1);
   }
 }
+
+// Graceful shutdown
+process.on('SIGINT', async () => {
+  console.log('Shutting down gracefully...');
+  await client.close();
+  process.exit(0);
+});
 
 main();

@@ -25,47 +25,73 @@ router.get('/register', (req, res) => {
   res.render('register', { title: "Register" });
 });
 
-// Handle registration
+// Handle registration - UPDATED with enhanced validation
 router.post('/register', async (req, res) => {
   try {
     const db = req.app.locals.client.db(req.app.locals.dbName);
     const usersCollection = db.collection('users');
 
-    // 1. Check if user already exists
-    const existingUser = await usersCollection.findOne({ email: req.body.email });
+    // 1. Validate required fields
+    const { firstName, lastName, email, password } = req.body;
+    if (!firstName || !lastName || !email || !password) {
+      return res.send("All fields are required.");
+    }
+
+    // 2. Server-side password validation (double validation)
+    const passwordRegex = {
+      length: /.{8,}/,
+      uppercase: /[A-Z]/,
+      lowercase: /[a-z]/,
+      number: /\d/,
+      special: /[!@#$%^&*(),.?":{}|<>]/
+    };
+
+    const passwordErrors = [];
+    if (!passwordRegex.length.test(password)) passwordErrors.push("at least 8 characters");
+    if (!passwordRegex.uppercase.test(password)) passwordErrors.push("an uppercase letter");
+    if (!passwordRegex.lowercase.test(password)) passwordErrors.push("a lowercase letter");
+    if (!passwordRegex.number.test(password)) passwordErrors.push("a number");
+    if (!passwordRegex.special.test(password)) passwordErrors.push("a special character");
+
+    if (passwordErrors.length > 0) {
+      return res.send(`Password must contain: ${passwordErrors.join(", ")}.`);
+    }
+
+    // 3. Check if user already exists
+    const existingUser = await usersCollection.findOne({ email: email.toLowerCase() });
     if (existingUser) return res.send("User already exists with this email.");
 
-    // 2. Hash password
-    const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
+    // 4. Hash password
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
     const currentDate = new Date();
 
-    // 3. Create verification token
+    // 5. Create verification token
     const token = uuidv4();
 
-    // 4. Build new user object
+    // 6. Build new user object (schema matches requirements)
     const newUser = {
       userId: uuidv4(), // external user ID
-      firstName: req.body.firstName,
-      lastName: req.body.lastName,
-      email: req.body.email,
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      email: email.toLowerCase().trim(),
       passwordHash: hashedPassword,
-      role: 'customer',
-      accountStatus: 'active',
-      isEmailVerified: false,
+      role: 'customer', // default role
+      accountStatus: 'active', // default status
+      isEmailVerified: false, // default false
       verificationToken: token,
       tokenExpiry: new Date(Date.now() + 3600000), // 1 hour expiry
       createdAt: currentDate,
       updatedAt: currentDate
     };
 
-    // 5. Insert into database
+    // 7. Insert into database
     await usersCollection.insertOne(newUser);
 
-    // 6. Build verification URL
+    // 8. Build verification URL
     const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
     const verificationUrl = `${baseUrl}/users/verify/${token}`;
 
-    // 7. Send verification email using Resend
+    // 9. Send verification email using Resend
     await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL,
       to: newUser.email,
@@ -73,22 +99,29 @@ router.post('/register', async (req, res) => {
       html: `
         <h2>Welcome, ${newUser.firstName}!</h2>
         <p>Thank you for registering. Please verify your email by clicking the link below:</p>
-        <a href="${verificationUrl}">${verificationUrl}</a>
+        <a href="${verificationUrl}" style="display: inline-block; padding: 12px 24px; background-color: #3b82f6; color: white; text-decoration: none; border-radius: 6px; margin: 16px 0;">Verify Email</a>
+        <p>Or copy and paste this link: ${verificationUrl}</p>
         <p>This link will expire in 1 hour.</p>
+        <p>If you didn't create this account, please ignore this email.</p>
       `
     });
 
-    // 8. Show success message (no verification link displayed)
+    // 10. Show success message
     res.send(`
-      <h2>Registration Successful!</h2>
-      <p>A verification email has been sent to <strong>${newUser.email}</strong>.</p>
-      <p>Please check your inbox and click the verification link to activate your account.</p>
-      <p><a href="/users/login">Back to Login</a></p>
+      <div style="max-width: 600px; margin: 50px auto; padding: 20px; text-align: center; font-family: Inter, sans-serif;">
+        <div style="background: #f0f9ff; border: 2px solid #3b82f6; border-radius: 8px; padding: 30px; margin: 20px 0;">
+          <i class="fas fa-envelope-check" style="font-size: 48px; color: #3b82f6; margin-bottom: 16px;"></i>
+          <h2 style="color: #1f2937; margin-bottom: 16px;">Registration Successful!</h2>
+          <p style="color: #6b7280; margin-bottom: 20px;">A verification email has been sent to <strong>${newUser.email}</strong>.</p>
+          <p style="color: #6b7280; margin-bottom: 20px;">Please check your inbox and click the verification link to activate your account.</p>
+          <a href="/users/login" style="display: inline-block; padding: 12px 24px; background-color: #3b82f6; color: white; text-decoration: none; border-radius: 6px;">Back to Login</a>
+        </div>
+      </div>
     `);
 
   } catch (err) {
     console.error("Error saving user:", err);
-    res.send("Something went wrong.");
+    res.send("Something went wrong during registration. Please try again.");
   }
 });
 
@@ -113,9 +146,14 @@ router.get('/verify/:token', async (req, res) => {
     );
 
     res.send(`
-      <h2>Email Verified!</h2>
-      <p>Your account has been verified successfully.</p>
-      <a href="/users/login">Proceed to Login</a>
+      <div style="max-width: 600px; margin: 50px auto; padding: 20px; text-align: center; font-family: Inter, sans-serif;">
+        <div style="background: #f0fdf4; border: 2px solid #10b981; border-radius: 8px; padding: 30px; margin: 20px 0;">
+          <i class="fas fa-check-circle" style="font-size: 48px; color: #10b981; margin-bottom: 16px;"></i>
+          <h2 style="color: #1f2937; margin-bottom: 16px;">Email Verified!</h2>
+          <p style="color: #6b7280; margin-bottom: 20px;">Your account has been verified successfully.</p>
+          <a href="/users/login" style="display: inline-block; padding: 12px 24px; background-color: #10b981; color: white; text-decoration: none; border-radius: 6px;">Proceed to Login</a>
+        </div>
+      </div>
     `);
   } catch (err) {
     console.error("Error verifying email:", err);
@@ -143,28 +181,57 @@ router.get('/login', (req, res) => {
   });
 });
 
-// Handle login
+// Handle login - ENHANCED
 router.post('/login', async (req, res) => {
   try {
     const db = req.app.locals.client.db(req.app.locals.dbName);
     const usersCollection = db.collection('users');
 
-    const user = await usersCollection.findOne({ email: req.body.email });
-    if (!user) return res.send("User not found.");
+    const { email, password } = req.body;
+    
+    // Basic field validation
+    if (!email || !password) {
+      return res.render('login', { 
+        title: "Login", 
+        message: "Email and password are required." 
+      });
+    }
 
+    // Find user by email
+    const user = await usersCollection.findOne({ email: email.toLowerCase() });
+    if (!user) {
+      return res.render('login', { 
+        title: "Login", 
+        message: "Invalid email or password." 
+      });
+    }
+
+    // Check account status
     if (user.accountStatus !== 'active') {
-      return res.send("Account is not active.");
+      return res.render('login', { 
+        title: "Login", 
+        message: "Account is not active. Please contact support." 
+      });
     }
 
-    // Block login if not verified
+    // Check email verification
     if (!user.isEmailVerified) {
-      return res.send("Please verify your email before logging in.");
+      return res.render('login', { 
+        title: "Login", 
+        message: "Please verify your email before logging in. Check your inbox for the verification link." 
+      });
     }
 
-    const isPasswordValid = await bcrypt.compare(req.body.password, user.passwordHash);
-    if (!isPasswordValid) return res.send("Invalid password.");
+    // Validate password
+    const isPasswordValid = await bcrypt.compare(password, user.passwordHash);
+    if (!isPasswordValid) {
+      return res.render('login', { 
+        title: "Login", 
+        message: "Invalid email or password." 
+      });
+    }
 
-    // Save session
+    // Create session (stores required data)
     req.session.user = {
       _id: user._id,
       userId: user.userId,
@@ -175,10 +242,15 @@ router.post('/login', async (req, res) => {
       isEmailVerified: user.isEmailVerified
     };
 
+    req.session.lastActivity = Date.now(); // Set initial activity timestamp
+
     res.redirect('/users/dashboard');
   } catch (err) {
     console.error("Error during login:", err);
-    res.send("Something went wrong.");
+    res.render('login', { 
+      title: "Login", 
+      message: "Something went wrong. Please try again." 
+    });
   }
 });
 

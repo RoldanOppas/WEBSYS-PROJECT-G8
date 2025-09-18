@@ -6,32 +6,648 @@
     <title><%= title %></title>
     <link rel="stylesheet" href="/styles/main.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Enhanced Dashboard Styles */
+        .dashboard-layout {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+        }
+
+        /* Modern Sidebar */
+        .sidebar {
+            background: linear-gradient(180deg, #1e293b 0%, #334155 100%);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, var(--primary-color), #8b5cf6);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="dots" width="20" height="20" patternUnits="userSpaceOnUse"><circle cx="10" cy="10" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23dots)"/></svg>');
+        }
+
+        .sidebar-logo {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .sidebar-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff, #f0f9ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-section-title {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+            border-radius: 12px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .nav-link::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.2), rgba(139, 92, 246, 0.2));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .nav-link:hover::before,
+        .nav-link.active::before {
+            opacity: 1;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .nav-link.active {
+            background: linear-gradient(135deg, var(--primary-color), #8b5cf6);
+            color: white;
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+        }
+
+        /* Enhanced Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            background: linear-gradient(135deg, var(--text-primary), var(--primary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .user-menu {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(139, 92, 246, 0.1));
+            border: 1px solid rgba(37, 99, 235, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 0.75rem 1.25rem;
+            transition: all 0.3s ease;
+        }
+
+        .user-menu:hover {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(139, 92, 246, 0.15));
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.2);
+        }
+
+        .user-avatar {
+            background: linear-gradient(135deg, var(--primary-color), #8b5cf6, #ec4899);
+            border: 3px solid white;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+            width: 40px;
+            height: 40px;
+        }
+
+        /* Enhanced Welcome Card */
+        .welcome-card {
+            background: linear-gradient(135deg, var(--primary-color), #8b5cf6, #ec4899);
+            color: white;
+            border-radius: 24px;
+            padding: 3rem 2rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .welcome-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            border-radius: 50%;
+            transform: translate(100px, -100px);
+        }
+
+        .welcome-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.05) 0%, transparent 70%);
+            border-radius: 50%;
+            transform: translate(-50px, 50px);
+        }
+
+        .welcome-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .welcome-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            line-height: 1.2;
+        }
+
+        .welcome-subtitle {
+            font-size: 1.1rem;
+            opacity: 0.95;
+            line-height: 1.6;
+        }
+
+        .welcome-time {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.875rem;
+            margin-top: 1rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        /* Enhanced Stats Cards */
+        .stats-grid {
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.05), rgba(139, 92, 246, 0.05));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .stat-value {
+            font-size: 2.25rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--text-primary), var(--primary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        /* Enhanced Information Cards */
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .info-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+        }
+
+        .info-card-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .info-card-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: white;
+        }
+
+        .info-card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .info-item:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Enhanced Status Badges */
+        .status-badge {
+            padding: 0.375rem 1rem;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.375rem;
+        }
+
+        .status-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+        }
+
+        .status-badge.verified {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .status-badge.pending {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+        }
+
+        .status-badge.admin {
+            background: linear-gradient(135deg, var(--primary-color), #8b5cf6);
+            color: white;
+        }
+
+        .status-badge.user {
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+            color: white;
+        }
+
+        /* Enhanced Action Buttons */
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.875rem 1.75rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), #8b5cf6);
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+            box-shadow: 0 4px 15px rgba(107, 114, 128, 0.3);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(107, 114, 128, 0.4);
+        }
+
+        /* Activity Feed */
+        .activity-feed {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            margin-top: 2rem;
+        }
+
+        .activity-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            transition: background-color 0.3s ease;
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-item:hover {
+            background: rgba(37, 99, 235, 0.05);
+            border-radius: 12px;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            color: white;
+        }
+
+        .activity-content {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-time {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .quick-action {
+            background: white;
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .quick-action:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12);
+            color: var(--text-primary);
+        }
+
+        .quick-action-icon {
+            width: 50px;
+            height: 50px;
+            margin: 0 auto 1rem;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .quick-action-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .quick-action-desc {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .welcome-card {
+                padding: 2rem 1.5rem;
+            }
+            
+            .welcome-title {
+                font-size: 2rem;
+            }
+            
+            .info-card {
+                padding: 1.5rem;
+            }
+            
+            .action-buttons {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Animation Classes */
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-slide-up {
+            animation: slideInUp 0.6s ease-out forwards;
+        }
+
+        .stat-card:nth-child(1) { animation-delay: 0.1s; }
+        .stat-card:nth-child(2) { animation-delay: 0.2s; }
+        .stat-card:nth-child(3) { animation-delay: 0.3s; }
+        .stat-card:nth-child(4) { animation-delay: 0.4s; }
+    </style>
 </head>
 <body>
     <div class="dashboard-layout">
-        <!-- Sidebar -->
+        <!-- Enhanced Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="sidebar-logo">
-                    <i class="fas fa-user-shield"></i>
+                    <i class="fas fa-store"></i>
                 </div>
-                <div class="sidebar-title">UserHub</div>
+                <div class="sidebar-title">HelloStore</div>
             </div>
             
             <nav class="sidebar-nav">
                 <div class="nav-section">
-                    <div class="nav-section-title">Main</div>
+                    <div class="nav-section-title">Main Menu</div>
                     <div class="nav-item">
                         <a href="/users/dashboard" class="nav-link active">
-                            <i class="fas fa-home"></i>
+                            <i class="fas fa-chart-line"></i>
                             Dashboard
                         </a>
                     </div>
                     <div class="nav-item">
                         <a href="#" class="nav-link">
+                            <i class="fas fa-shopping-bag"></i>
+                            My Orders
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-heart"></i>
+                            Wishlist
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Account</div>
+                    <div class="nav-item">
+                        <a href="#" class="nav-link">
                             <i class="fas fa-user-edit"></i>
-                            Edit Profile
+                            Profile Settings
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-credit-card"></i>
+                            Payment Methods
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="#" class="nav-link">
+                            <i class="fas fa-map-marker-alt"></i>
+                            Addresses
                         </a>
                     </div>
                 </div>
@@ -47,6 +663,12 @@
                     </div>
                     <div class="nav-item">
                         <a href="#" class="nav-link">
+                            <i class="fas fa-box"></i>
+                            Product Management
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="#" class="nav-link">
                             <i class="fas fa-chart-bar"></i>
                             Analytics
                         </a>
@@ -54,18 +676,18 @@
                     <div class="nav-item">
                         <a href="#" class="nav-link">
                             <i class="fas fa-cog"></i>
-                            Settings
+                            System Settings
                         </a>
                     </div>
                 </div>
                 <% } %>
                 
                 <div class="nav-section">
-                    <div class="nav-section-title">Account</div>
+                    <div class="nav-section-title">Support</div>
                     <div class="nav-item">
                         <a href="#" class="nav-link">
-                            <i class="fas fa-key"></i>
-                            Change Password
+                            <i class="fas fa-question-circle"></i>
+                            Help Center
                         </a>
                     </div>
                     <div class="nav-item">
@@ -77,7 +699,7 @@
                     <div class="nav-item">
                         <a href="/users/logout" class="nav-link">
                             <i class="fas fa-sign-out-alt"></i>
-                            Logout
+                            Sign Out
                         </a>
                     </div>
                 </div>
@@ -86,13 +708,13 @@
         
         <!-- Main Content -->
         <div class="main-content">
-            <!-- Header -->
+            <!-- Enhanced Header -->
             <header class="header">
                 <div class="header-left">
                     <button class="sidebar-toggle" id="sidebarToggle">
                         <i class="fas fa-bars"></i>
                     </button>
-                    <h1 class="page-title">Dashboard</h1>
+                    <h1 class="page-title">Dashboard Overview</h1>
                 </div>
                 
                 <div class="header-right">
@@ -102,7 +724,7 @@
                         </div>
                         <div class="user-info">
                             <div class="user-name"><%= user.firstName %> <%= user.lastName %></div>
-                            <div class="user-role"><%= user.role %></div>
+                            <div class="user-role"><%= user.role === 'admin' ? 'Administrator' : 'Customer' %></div>
                         </div>
                         <i class="fas fa-chevron-down"></i>
                     </div>
@@ -111,41 +733,41 @@
             
             <!-- Content -->
             <main class="content">
-                <!-- Welcome Section -->
-                <div class="card" style="margin-bottom: 2rem;">
-                    <div class="card-body">
-                        <h2 style="margin-bottom: 0.5rem; color: var(--text-primary);">
-                            Welcome back, <%= user.firstName %>! 👋
-                        </h2>
-                        <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">
-                            Here's what's happening with your account today.
-                        </p>
+                <!-- Enhanced Welcome Section -->
+                <div class="welcome-card">
+                    <div class="welcome-content">
+                        <h1 class="welcome-title">Welcome back, <%= user.firstName %>!</h1>
+                        <p class="welcome-subtitle">We're glad to see you again. Here's an overview of your account activity and personalized recommendations just for you.</p>
+                        <div class="welcome-time">
+                            <i class="fas fa-clock"></i>
+                            Last login: <span id="currentTime"></span>
+                        </div>
                     </div>
                 </div>
                 
-                <!-- Stats Grid -->
+                <!-- Enhanced Stats Grid -->
                 <div class="stats-grid">
-                    <div class="stat-card">
+                    <div class="stat-card animate-slide-up">
                         <div class="stat-icon primary">
-                            <i class="fas fa-user"></i>
+                            <i class="fas fa-id-badge"></i>
                         </div>
                         <div class="stat-content">
-                            <div class="stat-value"><%= user.userId %></div>
-                            <div class="stat-label">User ID</div>
+                            <div class="stat-value">#<%= user.userId %></div>
+                            <div class="stat-label">Account ID</div>
                         </div>
                     </div>
                     
-                    <div class="stat-card">
+                    <div class="stat-card animate-slide-up">
                         <div class="stat-icon success">
-                            <i class="fas fa-check-circle"></i>
+                            <i class="fas fa-shopping-cart"></i>
                         </div>
                         <div class="stat-content">
-                            <div class="stat-value">Active</div>
-                            <div class="stat-label">Account Status</div>
+                            <div class="stat-value">0</div>
+                            <div class="stat-label">Total Orders</div>
                         </div>
                     </div>
                     
-                    <div class="stat-card">
+                    <div class="stat-card animate-slide-up">
                         <div class="stat-icon <%= user.isEmailVerified ? 'success' : 'warning' %>">
                             <i class="fas fa-<%= user.isEmailVerified ? 'shield-check' : 'exclamation-triangle' %>"></i>
                         </div>
@@ -155,92 +777,355 @@
                         </div>
                     </div>
                     
-                    <div class="stat-card">
+                    <div class="stat-card animate-slide-up">
                         <div class="stat-icon info">
-                            <i class="fas fa-user-tag"></i>
+                            <i class="fas fa-heart"></i>
                         </div>
                         <div class="stat-content">
-                            <div class="stat-value" style="text-transform: capitalize;"><%= user.role %></div>
-                            <div class="stat-label">Role</div>
+                            <div class="stat-value">0</div>
+                            <div class="stat-label">Wishlist Items</div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Account Information -->
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Account Information</h3>
-                    </div>
-                    <div class="card-body">
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
-                            <div>
-                                <h4 style="color: var(--text-primary); margin-bottom: 1rem; font-weight: 600;">
-                                    <i class="fas fa-user" style="margin-right: 0.5rem; color: var(--primary-color);"></i>
-                                    Personal Details
-                                </h4>
-                                <div style="space-y: 0.75rem;">
-                                    <div style="margin-bottom: 0.75rem;">
-                                        <strong>Name:</strong> <%= user.firstName %> <%= user.lastName %>
-                                    </div>
-                                    <div style="margin-bottom: 0.75rem;">
-                                        <strong>Email:</strong> <%= user.email %>
-                                    </div>
-                                    <div style="margin-bottom: 0.75rem;">
-                                        <strong>Role:</strong> 
-                                        <span class="status-badge <%= user.role === 'admin' ? 'info' : 'active' %>" style="margin-left: 0.5rem;">
-                                            <%= user.role %>
-                                        </span>
-                                    </div>
-                                </div>
+                <!-- Enhanced Information Cards -->
+                <div class="info-grid">
+                    <!-- Personal Information -->
+                    <div class="info-card">
+                        <div class="info-card-header">
+                            <div class="info-card-icon" style="background: linear-gradient(135deg, var(--primary-color), #8b5cf6);">
+                                <i class="fas fa-user"></i>
                             </div>
-                            
-                            <div>
-                                <h4 style="color: var(--text-primary); margin-bottom: 1rem; font-weight: 600;">
-                                    <i class="fas fa-shield-alt" style="margin-right: 0.5rem; color: var(--success-color);"></i>
-                                    Security
-                                </h4>
-                                <div style="space-y: 0.75rem;">
-                                    <div style="margin-bottom: 0.75rem;">
-                                        <strong>Email Verified:</strong>
-                                        <span class="status-badge <%= user.isEmailVerified ? 'active' : 'warning' %>" style="margin-left: 0.5rem;">
-                                            <%= user.isEmailVerified ? 'Yes' : 'No' %>
-                                        </span>
-                                    </div>
-                                    <div style="margin-bottom: 0.75rem;">
-                                        <strong>Account Status:</strong>
-                                        <span class="status-badge active" style="margin-left: 0.5rem;">Active</span>
-                                    </div>
-                                    <div style="margin-bottom: 0.75rem;">
-                                        <strong>Last Login:</strong> Just now
-                                    </div>
-                                </div>
-                            </div>
+                            <h3 class="info-card-title">Personal Information</h3>
                         </div>
-                        
-                        <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border-light);">
-                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                                <a href="#" class="btn btn-primary">
-                                    <i class="fas fa-edit"></i>
-                                    Edit Profile
-                                </a>
-                                <a href="#" class="btn btn-secondary">
-                                    <i class="fas fa-key"></i>
-                                    Change Password
-                                </a>
-                                <% if (!user.isEmailVerified) { %>
-                                <a href="#" class="btn btn-secondary">
-                                    <i class="fas fa-envelope"></i>
-                                    Verify Email
-                                </a>
-                                <% } %>
+                        <div class="info-items">
+                            <div class="info-item">
+                                <span class="info-label">Full Name</span>
+                                <span class="info-value"><%= user.firstName %> <%= user.lastName %></span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Email Address</span>
+                                <span class="info-value"><%= user.email %></span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Account Type</span>
+                                <span class="status-badge <%= user.role === 'admin' ? 'admin' : 'user' %>">
+                                    <%= user.role === 'admin' ? 'Administrator' : 'Customer' %>
+                                </span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Member Since</span>
+                                <span class="info-value">January 2024</span>
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- Security & Verification -->
+                    <div class="info-card">
+                        <div class="info-card-header">
+                            <div class="info-card-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <h3 class="info-card-title">Security & Verification</h3>
+                        </div>
+                        <div class="info-items">
+                            <div class="info-item">
+                                <span class="info-label">Email Verified</span>
+                                <span class="status-badge <%= user.isEmailVerified ? 'verified' : 'pending' %>">
+                                    <%= user.isEmailVerified ? 'Verified' : 'Pending Verification' %>
+                                </span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Account Status</span>
+                                <span class="status-badge verified">Active</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Two-Factor Auth</span>
+                                <span class="status-badge pending">Not Enabled</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Last Password Change</span>
+                                <span class="info-value">30+ days ago</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <a href="#" class="quick-action">
+                        <div class="quick-action-icon" style="background: linear-gradient(135deg, var(--primary-color), #8b5cf6);">
+                            <i class="fas fa-edit"></i>
+                        </div>
+                        <div class="quick-action-title">Edit Profile</div>
+                        <div class="quick-action-desc">Update your personal information</div>
+                    </a>
+                    
+                    <a href="#" class="quick-action">
+                        <div class="quick-action-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                            <i class="fas fa-key"></i>
+                        </div>
+                        <div class="quick-action-title">Change Password</div>
+                        <div class="quick-action-desc">Update your account security</div>
+                    </a>
+                    
+                    <% if (!user.isEmailVerified) { %>
+                    <a href="#" class="quick-action">
+                        <div class="quick-action-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+                            <i class="fas fa-envelope-circle-check"></i>
+                        </div>
+                        <div class="quick-action-title">Verify Email</div>
+                        <div class="quick-action-desc">Complete email verification</div>
+                    </a>
+                    <% } %>
+                    
+                    <a href="#" class="quick-action">
+                        <div class="quick-action-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
+                            <i class="fas fa-shopping-bag"></i>
+                        </div>
+                        <div class="quick-action-title">Browse Products</div>
+                        <div class="quick-action-desc">Explore our latest collection</div>
+                    </a>
+                </div>
+                
+                <!-- Recent Activity Feed -->
+                <div class="activity-feed">
+                    <div class="activity-header">
+                        <div class="info-card-icon" style="background: linear-gradient(135deg, #6b7280, #4b5563);">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <h3 class="info-card-title">Recent Activity</h3>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
+                            <i class="fas fa-sign-in-alt"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">Account Login</div>
+                            <div class="activity-time">Just now</div>
+                        </div>
+                    </div>
+                    
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background: linear-gradient(135deg, var(--primary-color), #8b5cf6);">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">Account Created</div>
+                            <div class="activity-time">January 15, 2024</div>
+                        </div>
+                    </div>
+                    
+                    <% if (!user.isEmailVerified) { %>
+                    <div class="activity-item">
+                        <div class="activity-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="activity-title">Email verification pending</div>
+                            <div class="activity-time">Action required</div>
+                        </div>
+                    </div>
+                    <% } %>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <a href="#" class="btn btn-primary">
+                        <i class="fas fa-edit"></i>
+                        Edit Profile
+                    </a>
+                    <a href="#" class="btn btn-secondary">
+                        <i class="fas fa-key"></i>
+                        Change Password
+                    </a>
+                    <% if (!user.isEmailVerified) { %>
+                    <a href="#" class="btn btn-secondary">
+                        <i class="fas fa-envelope"></i>
+                        Verify Email
+                    </a>
+                    <% } %>
+                    <a href="#" class="btn btn-secondary">
+                        <i class="fas fa-shield-alt"></i>
+                        Enable 2FA
+                    </a>
                 </div>
             </main>
         </div>
     </div>
     
-    <script src="/js/main.js"></script>
+    <script>
+        // Enhanced JavaScript functionality
+        
+        // Current time display
+        function updateCurrentTime() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            document.getElementById('currentTime').textContent = now.toLocaleDateString('en-US', options);
+        }
+        
+        // Update time immediately and then every minute
+        updateCurrentTime();
+        setInterval(updateCurrentTime, 60000);
+        
+        // Sidebar toggle functionality
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const sidebar = document.getElementById('sidebar');
+        
+        sidebarToggle?.addEventListener('click', function() {
+            sidebar.classList.toggle('collapsed');
+            // Store sidebar state in localStorage
+            localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+        });
+        
+        // Restore sidebar state on page load
+        if (localStorage.getItem('sidebarCollapsed') === 'true') {
+            sidebar.classList.add('collapsed');
+        }
+        
+        // Enhanced stats animation on scroll
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+        
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate-slide-up');
+                }
+            });
+        }, observerOptions);
+        
+        // Observe all stat cards
+        document.querySelectorAll('.stat-card').forEach(card => {
+            observer.observe(card);
+        });
+        
+        // Quick action hover effects
+        document.querySelectorAll('.quick-action').forEach(action => {
+            action.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-8px) scale(1.02)';
+            });
+            
+            action.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+        
+        // Button click animations
+        document.querySelectorAll('.btn').forEach(button => {
+            button.addEventListener('click', function(e) {
+                // Create ripple effect
+                const ripple = document.createElement('span');
+                const rect = this.getBoundingClientRect();
+                const size = Math.max(rect.width, rect.height);
+                const x = e.clientX - rect.left - size / 2;
+                const y = e.clientY - rect.top - size / 2;
+                
+                ripple.style.cssText = `
+                    position: absolute;
+                    width: ${size}px;
+                    height: ${size}px;
+                    left: ${x}px;
+                    top: ${y}px;
+                    background: rgba(255, 255, 255, 0.5);
+                    border-radius: 50%;
+                    transform: scale(0);
+                    animation: ripple 0.6s linear;
+                    pointer-events: none;
+                `;
+                
+                this.style.position = 'relative';
+                this.style.overflow = 'hidden';
+                this.appendChild(ripple);
+                
+                setTimeout(() => {
+                    ripple.remove();
+                }, 600);
+            });
+        });
+        
+        // User menu dropdown (basic implementation)
+        document.querySelector('.user-menu')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            // Here you would typically show a dropdown menu
+            console.log('User menu clicked - implement dropdown here');
+        });
+        
+        // Notification system (basic implementation)
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification notification-${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+                <button onclick="this.parentElement.remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            // Add notification styles
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: white;
+                padding: 1rem 1.5rem;
+                border-radius: 12px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+                border-left: 4px solid ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                z-index: 1000;
+                animation: slideInRight 0.3s ease;
+                max-width: 400px;
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+        
+        // Add CSS animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes ripple {
+                to {
+                    transform: scale(4);
+                    opacity: 0;
+                }
+            }
+            
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Welcome message
+        setTimeout(() => {
+            showNotification(`Welcome back, <%= user.firstName %>! Your dashboard is ready.`, 'success');
+        }, 1000);
+    </script>
 </body>
 </html>

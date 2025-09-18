@@ -7,6 +7,26 @@
     <link rel="stylesheet" href="/styles/main.css">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .password-requirements {
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+        }
+        .requirement {
+            padding: 0.25rem 0;
+            transition: color 0.3s ease;
+        }
+        .requirement.valid {
+            color: #10b981;
+        }
+        .requirement.invalid {
+            color: #ef4444;
+        }
+        .requirement i {
+            margin-right: 0.5rem;
+            width: 16px;
+        }
+    </style>
 </head>
 <body>
     <div class="auth-container">
@@ -19,7 +39,7 @@
                 <p class="auth-subtitle">Join us today and get started</p>
             </div>
             
-            <form class="auth-form" action="/users/register" method="POST">
+            <form class="auth-form" action="/users/register" method="POST" id="registrationForm">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                     <div class="form-group">
                         <label for="firstName" class="form-label">
@@ -49,9 +69,32 @@
                         Password
                     </label>
                     <input type="password" id="password" name="password" class="form-control" placeholder="Create a strong password" required>
+                    
+                    <div class="password-requirements" id="passwordRequirements">
+                        <div class="requirement invalid" id="length">
+                            <i class="fas fa-times"></i>
+                            At least 8 characters
+                        </div>
+                        <div class="requirement invalid" id="uppercase">
+                            <i class="fas fa-times"></i>
+                            At least one uppercase letter
+                        </div>
+                        <div class="requirement invalid" id="lowercase">
+                            <i class="fas fa-times"></i>
+                            At least one lowercase letter
+                        </div>
+                        <div class="requirement invalid" id="number">
+                            <i class="fas fa-times"></i>
+                            At least one number
+                        </div>
+                        <div class="requirement invalid" id="special">
+                            <i class="fas fa-times"></i>
+                            At least one special character (!@#$%^&*)
+                        </div>
+                    </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.875rem;">
+                <button type="submit" class="btn btn-primary" id="submitBtn" style="width: 100%; padding: 0.875rem;" disabled>
                     <i class="fas fa-user-plus" style="margin-right: 0.5rem;"></i>
                     Create Account
                 </button>
@@ -64,5 +107,65 @@
             </div>
         </div>
     </div>
+
+    <script>
+        const passwordInput = document.getElementById('password');
+        const submitBtn = document.getElementById('submitBtn');
+        const form = document.getElementById('registrationForm');
+
+        // Password validation criteria
+        const criteria = {
+            length: (password) => password.length >= 8,
+            uppercase: (password) => /[A-Z]/.test(password),
+            lowercase: (password) => /[a-z]/.test(password),
+            number: (password) => /\d/.test(password),
+            special: (password) => /[!@#$%^&*(),.?":{}|<>]/.test(password)
+        };
+
+        function updateRequirement(id, isValid) {
+            const element = document.getElementById(id);
+            const icon = element.querySelector('i');
+            
+            if (isValid) {
+                element.classList.remove('invalid');
+                element.classList.add('valid');
+                icon.classList.remove('fa-times');
+                icon.classList.add('fa-check');
+            } else {
+                element.classList.remove('valid');
+                element.classList.add('invalid');
+                icon.classList.remove('fa-check');
+                icon.classList.add('fa-times');
+            }
+        }
+
+        function validatePassword() {
+            const password = passwordInput.value;
+            let allValid = true;
+
+            // Check each criterion
+            for (const [key, validator] of Object.entries(criteria)) {
+                const isValid = validator(password);
+                updateRequirement(key, isValid);
+                if (!isValid) allValid = false;
+            }
+
+            // Enable/disable submit button
+            submitBtn.disabled = !allValid;
+            
+            return allValid;
+        }
+
+        // Real-time validation
+        passwordInput.addEventListener('input', validatePassword);
+
+        // Form submission validation
+        form.addEventListener('submit', function(e) {
+            if (!validatePassword()) {
+                e.preventDefault();
+                alert('Please ensure your password meets all requirements.');
+            }
+        });
+    </script>
 </body>
 </html>
