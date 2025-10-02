@@ -3,7 +3,6 @@ const bodyParser = require('body-parser');
 const { MongoClient } = require('mongodb');
 const session = require('express-session');
 const path = require('path');
-
 require('dotenv').config();
 
 const app = express();
@@ -11,13 +10,13 @@ const app = express();
 // Use process.env.PORT for Render, fallback to 3000 locally
 const PORT = process.env.PORT || 3000;
 
+// Trust proxy (important for Render deployment)
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-
-// Serve static files from public directory
-app.use(express.static(path.join(__dirname, 'public')));
 
 // Session setup - UPDATED with timeout
 app.use(session({
@@ -25,10 +24,16 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: { 
-    secure: false, // set true in production with HTTPS
+    secure: process.env.NODE_ENV === 'production', // true in production with HTTPS
     maxAge: 15 * 60 * 1000 // 15 minutes for testing
   }
 }));
+
+// Make user available to all views (must be before routes)
+app.use((req, res, next) => {
+  res.locals.user = req.session?.user || null;
+  next();
+});
 
 // Session timeout middleware - ENHANCED
 app.use((req, res, next) => {
@@ -38,6 +43,7 @@ app.use((req, res, next) => {
     '/users/login', 
     '/users/register', 
     '/password/forgot',
+    '/health', // health check endpoint
     '/styles/', // Allow static files
     '/scripts/',
     '/images/'
@@ -90,10 +96,54 @@ app.use('/', indexRoute);
 app.use('/users', usersRoute);
 app.use('/password', passwordRoute);
 
-// Error handling middleware
+// Serve static files from public directory (before 404)
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Health check endpoint for monitoring
+app.get('/health', (req, res) => {
+  res.type('text').send('ok');
+});
+
+// Log 404s for debugging (optional but helpful)
+app.use((req, res, next) => {
+  if (!res.headersSent) {
+    console.warn('404:', req.method, req.originalUrl, 'Referrer:', req.get('referer') || '-');
+  }
+  next();
+});
+
+// 404 handler (must be after all routes and static files)
+app.use((req, res, next) => {
+  // Check if this is an API request
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ 
+      error: 'Not Found', 
+      path: req.path 
+    });
+  }
+  
+  // Prevent caching of 404 pages
+  res.set('Cache-Control', 'no-store');
+  res.status(404).render('404', { title: 'Page Not Found' });
+});
+
+// 500 Error handling middleware (must be last)
 app.use((err, req, res, next) => {
   console.error('Error:', err);
-  res.status(500).send('Something went wrong!');
+  
+  // Check if this is an API request
+  if (req.path.startsWith('/api/')) {
+    return res.status(500).json({ 
+      error: 'Internal Server Error',
+      message: process.env.NODE_ENV === 'production' ? 'Something went wrong' : err.message
+    });
+  }
+  
+  // Render 500 page for regular requests
+  res.status(500).render('500', { 
+    title: 'Server Error',
+    message: process.env.NODE_ENV === 'production' ? 'Something went wrong!' : err.message
+  });
 });
 
 // Updated server startup with MongoDB connection
@@ -105,6 +155,7 @@ async function main() {
     // Start server
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
+      console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
     });
   } catch (err) {
     console.error("MongoDB connection failed", err);
