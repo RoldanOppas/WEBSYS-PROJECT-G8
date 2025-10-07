@@ -26,6 +26,11 @@
             margin-right: 0.5rem;
             width: 16px;
         }
+        .turnstile-container {
+            margin: 1.5rem 0;
+            display: flex;
+            justify-content: center;
+        }
     </style>
 </head>
 <body>
@@ -94,6 +99,13 @@
                     </div>
                 </div>
 
+                <!-- Turnstile widget -->
+                <div class="turnstile-container">
+                    <div class="cf-turnstile" 
+                         data-sitekey="<%= process.env.TURNSTILE_SITEKEY %>">
+                    </div>
+                </div>
+
                 <button type="submit" class="btn btn-primary" id="submitBtn" style="width: 100%; padding: 0.875rem;" disabled>
                     <i class="fas fa-user-plus" style="margin-right: 0.5rem;"></i>
                     Create Account
@@ -107,6 +119,9 @@
             </div>
         </div>
     </div>
+
+    <!-- Turnstile script -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
     <script>
         const passwordInput = document.getElementById('password');

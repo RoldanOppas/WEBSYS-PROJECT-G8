@@ -46,6 +46,11 @@
         .btn:active {
             transform: translateY(0);
         }
+        .turnstile-container {
+            margin: 1.5rem 0;
+            display: flex;
+            justify-content: center;
+        }
     </style>
 </head>
 <body>
@@ -83,6 +88,13 @@
                     <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required autocomplete="current-password">
                 </div>
 
+                <!-- Turnstile widget -->
+                <div class="turnstile-container">
+                    <div class="cf-turnstile" 
+                         data-sitekey="<%= process.env.TURNSTILE_SITEKEY %>">
+                    </div>
+                </div>
+
                 <button type="submit" class="btn btn-primary" id="loginBtn" style="width: 100%; padding: 0.875rem;">
                     <i class="fas fa-sign-in-alt" style="margin-right: 0.5rem;"></i>
                     Sign In
@@ -106,6 +118,9 @@
             </div>
         </div>
     </div>
+
+    <!-- Turnstile script -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
     <script>
         // Basic form validation and user experience improvements
