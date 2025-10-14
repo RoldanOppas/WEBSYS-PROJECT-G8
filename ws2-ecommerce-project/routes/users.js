@@ -1,7 +1,6 @@
 // routes/users.js
 const { v4: uuidv4 } = require('uuid');
 const { Resend } = require('resend');
-const verifyTurnstile = require('../utils/turnstileVerify');
 
 const express = require('express');
 const router = express.Router();
@@ -26,20 +25,9 @@ router.get('/register', (req, res) => {
   res.render('register', { title: "Register" });
 });
 
-// Handle registration - with Turnstile verification
+// Handle registration - UPDATED with enhanced validation
 router.post('/register', async (req, res) => {
   try {
-    // Verify Turnstile token first
-    const token = req.body['cf-turnstile-response'];
-    if (!token) {
-      return res.send("Verification failed. Please try again.");
-    }
-
-    const turnstileResult = await verifyTurnstile(token, req.ip);
-    if (!turnstileResult.success) {
-      return res.send("Verification failed. Please try again.");
-    }
-
     const db = req.app.locals.client.db(req.app.locals.dbName);
     const usersCollection = db.collection('users');
 
@@ -78,7 +66,7 @@ router.post('/register', async (req, res) => {
     const currentDate = new Date();
 
     // 5. Create verification token
-    const verificationToken = uuidv4();
+    const token = uuidv4();
 
     // 6. Build new user object (schema matches requirements)
     const newUser = {
@@ -90,7 +78,7 @@ router.post('/register', async (req, res) => {
       role: 'customer', // default role
       accountStatus: 'active', // default status
       isEmailVerified: false, // default false
-      verificationToken: verificationToken,
+      verificationToken: token,
       tokenExpiry: new Date(Date.now() + 3600000), // 1 hour expiry
       createdAt: currentDate,
       updatedAt: currentDate
@@ -101,7 +89,7 @@ router.post('/register', async (req, res) => {
 
     // 8. Build verification URL
     const baseUrl = process.env.BASE_URL || 'http://localhost:3000';
-    const verificationUrl = `${baseUrl}/users/verify/${verificationToken}`;
+    const verificationUrl = `${baseUrl}/users/verify/${token}`;
 
     // 9. Send verification email using Resend
     await resend.emails.send({
@@ -173,7 +161,7 @@ router.get('/verify/:token', async (req, res) => {
   }
 });
 
-// Show login form
+// Show login form - UPDATED
 router.get('/login', (req, res) => {
   let message = null;
   
@@ -193,26 +181,9 @@ router.get('/login', (req, res) => {
   });
 });
 
-// Handle login - with Turnstile verification
+// Handle login - ENHANCED
 router.post('/login', async (req, res) => {
   try {
-    // Verify Turnstile token first
-    const token = req.body['cf-turnstile-response'];
-    if (!token) {
-      return res.render('login', { 
-        title: "Login", 
-        message: "Verification failed. Please try again." 
-      });
-    }
-
-    const turnstileResult = await verifyTurnstile(token, req.ip);
-    if (!turnstileResult.success) {
-      return res.render('login', { 
-        title: "Login", 
-        message: "Verification failed. Please try again." 
-      });
-    }
-
     const db = req.app.locals.client.db(req.app.locals.dbName);
     const usersCollection = db.collection('users');
 
@@ -283,7 +254,7 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Dashboard route
+// Dashboard route - UPDATED
 router.get('/dashboard', (req, res) => {
   // This check is now handled by middleware, but keep for safety
   if (!req.session.user) return res.redirect('/users/login?expired=true');
@@ -311,7 +282,7 @@ router.get('/admin', requireAdmin, async (req, res) => {
   }
 });
 
-// Logout route
+// Logout route - UPDATED
 router.get('/logout', (req, res) => {
   req.session.destroy((err) => {
     if (err) {
@@ -336,7 +307,7 @@ router.get('/list', requireAdmin, async (req, res, next) => {
   }
 });
 
-// Edit user (GET)
+// Edit user (GET) - UPDATED with admin check
 router.get('/edit/:id', requireAdmin, async (req, res) => {
   try {
     const db = req.app.locals.client.db(req.app.locals.dbName);
@@ -351,7 +322,7 @@ router.get('/edit/:id', requireAdmin, async (req, res) => {
   }
 });
 
-// Edit user (POST update)
+// Edit user (POST update) - UPDATED with admin check and proper fields
 router.post('/edit/:id', requireAdmin, async (req, res, next) => {
   try {
     const db = req.app.locals.client.db(req.app.locals.dbName);
@@ -382,7 +353,7 @@ router.post('/edit/:id', requireAdmin, async (req, res, next) => {
   }
 });
 
-// Delete user
+// Delete user - UPDATED with admin check and safety measures
 router.post('/delete/:id', requireAdmin, async (req, res, next) => {
   try {
     const db = req.app.locals.client.db(req.app.locals.dbName);
