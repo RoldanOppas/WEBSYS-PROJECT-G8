@@ -104,6 +104,11 @@ app.get('/health', (req, res) => {
   res.type('text').send('ok');
 });
 
+// Serve sitemap.xml
+app.get('/sitemap.xml', (req, res) => {
+  res.sendFile(path.join(__dirname, 'sitemap.xml'));
+});
+
 // Log 404s for debugging (optional but helpful)
 app.use((req, res, next) => {
   if (!res.headersSent) {
