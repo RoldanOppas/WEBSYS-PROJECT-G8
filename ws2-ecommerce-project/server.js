@@ -15,6 +15,7 @@ app.set('trust proxy', 1);
 
 // Middleware
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(express.json()); // ADD THIS - Required for JSON body parsing in checkout route
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
@@ -58,8 +59,6 @@ app.get('/sitemap.xml', (req, res) => {
 
 // Session timeout middleware - UPDATED WITH PUBLIC ROUTES
 app.use((req, res, next) => {
-
-  // ADD products route to public routes IF NEEDED
   const publicRoutes = [
     '/', 
     '/about',
@@ -114,12 +113,16 @@ app.use((req, res, next) => {
 const indexRoute = require('./routes/index');
 const usersRoute = require('./routes/users');
 const passwordRoute = require('./routes/password');
-const productsRoute = require('./routes/products'); // << ADD THIS
+const productsRoute = require('./routes/products');
+const ordersRoute = require('./routes/orders'); // ADD THIS
+const adminOrdersRoute = require('./routes/adminOrders'); // ADD THIS
 
 app.use('/', indexRoute);
 app.use('/users', usersRoute);
 app.use('/password', passwordRoute);
-app.use('/', productsRoute); // << ADD THIS
+app.use('/', productsRoute);
+app.use('/orders', ordersRoute); // ADD THIS
+app.use('/admin', adminOrdersRoute); // ADD THIS
 
 // Log 404s
 app.use((req, res, next) => {

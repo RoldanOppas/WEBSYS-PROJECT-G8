@@ -1,43 +1,45 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const adminAuth = require('../middleware/adminAuth');
-const { ObjectId } = require('mongodb');
+const isAdmin = require("../middleware/adminAuth");
 
-// Admin: View All Orders
-router.get('/', adminAuth, async (req, res) => {
-    try {
-        const db = req.app.locals.client.db(req.app.locals.dbName);
-        const orders = await db.collection('orders')
-            .find({})
-            .sort({ createdAt: -1 })
-            .toArray();
+// GET /admin/orders – list all orders for admins
+router.get("/orders", isAdmin, async (req, res) => {
+  try {
+    const db = req.app.locals.client.db(req.app.locals.dbName);
+    const ordersCollection = db.collection("orders");
+    const usersCollection = db.collection("users");
 
-        res.render('admin-orders', {
-            title: "Orders",
-            orders
-        });
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("Error loading orders");
-    }
-});
+    // Get all orders, newest first
+    const orders = await ordersCollection
+      .find()
+      .sort({ createdAt: -1 })
+      .toArray();
 
-// Admin: Update Status
-router.post('/update-status', adminAuth, async (req, res) => {
-    try {
-        const { orderId, status } = req.body;
+    // Extract unique userIds from orders
+    const userIds = [...new Set(orders.map(order => order.userId))];
 
-        const db = req.app.locals.client.db(req.app.locals.dbName);
-        await db.collection('orders').updateOne(
-            { _id: new ObjectId(orderId) },
-            { $set: { status } }
-        );
+    // Load users for those userIds
+    const users = await usersCollection
+      .find({ userId: { $in: userIds } })
+      .toArray();
 
-        res.redirect('/admin/orders');
-    } catch (err) {
-        console.error(err);
-        res.status(500).send("Failed to update status");
-    }
+    // Attach user email to each order
+    const ordersWithUser = orders.map(order => {
+      const user = users.find(u => u.userId === order.userId);
+      return {
+        ...order,
+        userEmail: user ? user.email : "Unknown"
+      };
+    });
+
+    res.render("admin-orders", {
+      title: "Admin – Orders",
+      orders: ordersWithUser
+    });
+  } catch (err) {
+    console.error("Error loading orders:", err);
+    res.status(500).send("Error loading orders.");
+  }
 });
 
 module.exports = router;
