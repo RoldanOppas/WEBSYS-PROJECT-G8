@@ -116,7 +116,9 @@ const passwordRoute = require('./routes/password');
 const productsRoute = require('./routes/products');
 const ordersRoute = require('./routes/orders'); // ADD THIS
 const adminOrdersRoute = require('./routes/adminOrders'); // ADD THIS
+const userDashboardRoute = require("./routes/userDashboard");
 
+app.use("/user", userDashboardRoute);
 app.use('/', indexRoute);
 app.use('/users', usersRoute);
 app.use('/password', passwordRoute);
