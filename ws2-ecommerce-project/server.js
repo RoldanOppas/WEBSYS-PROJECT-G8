@@ -23,16 +23,16 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Session setup - UPDATED with timeout
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'dev-secret', // keep secret in .env
+  secret: process.env.SESSION_SECRET || 'dev-secret',
   resave: false,
   saveUninitialized: false,
   cookie: { 
-    secure: process.env.NODE_ENV === 'production', // true in production with HTTPS
-    maxAge: 15 * 60 * 1000 // 15 minutes for testing
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 15 * 60 * 1000 // 15 minutes
   }
 }));
 
-// Make user available to all views (must be before routes)
+// Make user available to all views
 app.use((req, res, next) => {
   res.locals.user = req.session?.user || null;
   next();
@@ -46,7 +46,7 @@ const client = new MongoClient(uri);
 app.locals.client = client;
 app.locals.dbName = process.env.DB_NAME || "ecommerceDB";
 
-// Health check endpoint for monitoring (BEFORE session middleware check)
+// Health check endpoint
 app.get('/health', (req, res) => {
   res.type('text').send('ok');
 });
@@ -56,66 +56,72 @@ app.get('/sitemap.xml', (req, res) => {
   res.sendFile(path.join(__dirname, 'sitemap.xml'));
 });
 
-// Session timeout middleware - ENHANCED
+// Session timeout middleware - UPDATED WITH PUBLIC ROUTES
 app.use((req, res, next) => {
-  // Routes that don't require authentication
+
+  // ADD products route to public routes IF NEEDED
   const publicRoutes = [
     '/', 
     '/about',
     '/menu',
     '/contact',
-    '/users/login', 
-    '/users/register', 
+    '/users/login',
+    '/users/register',
     '/password/forgot',
     '/health',
     '/sitemap.xml'
   ];
-  
-  // Check if it's a static file request
-  const staticFileExtensions = ['.css', '.js', '.png', '.jpg', '.jpeg', '.gif', '.ico', '.svg', '.woff', '.woff2', '.ttf', '.eot'];
+
+  const staticFileExtensions = [
+    '.css', '.js', '.png', '.jpg', '.jpeg', 
+    '.gif', '.ico', '.svg', '.woff', '.woff2', 
+    '.ttf', '.eot'
+  ];
+
   const isStaticFile = staticFileExtensions.some(ext => req.path.endsWith(ext));
-  
-  const isPublicRoute = publicRoutes.includes(req.path) || 
-                       req.path.startsWith('/password/reset/') ||
-                       req.path.startsWith('/users/verify/') ||
-                       isStaticFile;
-  
+
+  const isPublicRoute =
+    publicRoutes.includes(req.path) ||
+    req.path.startsWith('/password/reset/') ||
+    req.path.startsWith('/users/verify/') ||
+    isStaticFile;
+
   if (!isPublicRoute) {
-    // Check if user session exists
+    // No session?
     if (!req.session.user) {
       return res.redirect('/users/login?expired=true');
     }
-    
-    // Check for session timeout (15 minutes of inactivity)
+
+    // Session timeout
     const now = Date.now();
     const lastActivity = req.session.lastActivity || now;
-    const timeoutDuration = 15 * 60 * 1000; // 15 minutes
-    
+    const timeoutDuration = 15 * 60 * 1000;
+
     if (now - lastActivity > timeoutDuration) {
-      // Session expired due to inactivity
       req.session.destroy((err) => {
         if (err) console.error("Session destruction error:", err);
       });
       return res.redirect('/users/login?expired=true');
     }
-    
-    // Update session activity timestamp
+
     req.session.lastActivity = now;
   }
-  
+
   next();
 });
 
-// Routes - MOUNT AFTER SESSION MIDDLEWARE
+// ROUTES (MOUNT AFTER SESSION MIDDLEWARE)
 const indexRoute = require('./routes/index');
 const usersRoute = require('./routes/users');
 const passwordRoute = require('./routes/password');
+const productsRoute = require('./routes/products'); // << ADD THIS
 
 app.use('/', indexRoute);
 app.use('/users', usersRoute);
 app.use('/password', passwordRoute);
+app.use('/', productsRoute); // << ADD THIS
 
-// Log 404s for debugging (optional but helpful)
+// Log 404s
 app.use((req, res, next) => {
   if (!res.headersSent) {
     console.warn('404:', req.method, req.originalUrl, 'Referrer:', req.get('referer') || '-');
@@ -123,47 +129,42 @@ app.use((req, res, next) => {
   next();
 });
 
-// 404 handler (must be after all routes and static files)
+// 404 handler
 app.use((req, res, next) => {
-  // Check if this is an API request
   if (req.path.startsWith('/api/')) {
     return res.status(404).json({ 
       error: 'Not Found', 
       path: req.path 
     });
   }
-  
-  // Prevent caching of 404 pages
+
   res.set('Cache-Control', 'no-store');
   res.status(404).render('404', { title: 'Page Not Found' });
 });
 
-// 500 Error handling middleware (must be last)
+// 500 handler
 app.use((err, req, res, next) => {
   console.error('Error:', err);
-  
-  // Check if this is an API request
+
   if (req.path.startsWith('/api/')) {
     return res.status(500).json({ 
       error: 'Internal Server Error',
       message: process.env.NODE_ENV === 'production' ? 'Something went wrong' : err.message
     });
   }
-  
-  // Render 500 page for regular requests
+
   res.status(500).render('500', { 
     title: 'Server Error',
     message: process.env.NODE_ENV === 'production' ? 'Something went wrong!' : err.message
   });
 });
 
-// Updated server startup with MongoDB connection
+// Server + MongoDB start
 async function main() {
   try {
     await client.connect();
     console.log("Connected to MongoDB Atlas");
-    
-    // Start server
+
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
       console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
@@ -174,7 +175,6 @@ async function main() {
   }
 }
 
-// Graceful shutdown
 process.on('SIGINT', async () => {
   console.log('Shutting down gracefully...');
   await client.close();

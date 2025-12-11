@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/styles/main.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Include same styles from admin.ejs -->
+    <style>
+        /* Copy ALL the styles from your admin.ejs <style> section here */
+        /* Enhanced Admin Dashboard Styles */
+        .dashboard-layout {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, #dc2626, #ef4444, #f97316);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidebar-logo {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .sidebar-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff, #fef3c7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(25px);
+            border-bottom: 1px solid rgba(220, 38, 38, 0.1);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 35px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .product-image-display {
+            font-size: 4rem;
+            text-align: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            border-radius: 15px;
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            padding: 0.75rem 1.5rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            color: white;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(220, 38, 38, 0.4);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            color: white;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #f87171);
+            color: white;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .product-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <!-- Sidebar (same as admin.ejs) -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="sidebar-title">AdminHub</div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Dashboard</div>
+                    <div class="nav-item">
+                        <a href="/users/dashboard" class="nav-link">
+                            <i class="fas fa-chart-line"></i>
+                            Overview
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Administration</div>
+                    <div class="nav-item">
+                        <a href="/users/admin" class="nav-link">
+                            <i class="fas fa-users-cog"></i>
+                            User Management
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="/admin/products" class="nav-link active">
+                            <i class="fas fa-box"></i>
+                            Product Management
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Support</div>
+                    <div class="nav-item">
+                        <a href="/users/logout" class="nav-link">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Sign Out
+                        </a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <header class="header">
+                <div class="header-left">
+                    <h1 class="page-title">Product Management</h1>
+                </div>
+                
+                <div class="header-right">
+                    <div class="user-menu">
+                        <div class="user-avatar">
+                            <%= (currentUser.firstName?.charAt(0) || '') + (currentUser.lastName?.charAt(0) || '') %>
+                        </div>
+                        <div class="user-info">
+                            <div class="user-name"><%= currentUser.firstName %> <%= currentUser.lastName %></div>
+                            <div class="user-role">Administrator</div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <main class="content">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h2 style="font-family: 'Playfair Display', serif; color: var(--text-primary);">
+                        Products (<%= products.length %>)
+                    </h2>
+                    <a href="/admin/products/new" class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Add New Product
+                    </a>
+                </div>
+                
+                <% if (products.length === 0) { %>
+                <div style="text-align: center; padding: 4rem; background: white; border-radius: 20px;">
+                    <i class="fas fa-box-open" style="font-size: 4rem; color: var(--text-light); margin-bottom: 1rem;"></i>
+                    <h3>No products yet</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: 2rem;">Start by adding your first product</p>
+                    <a href="/admin/products/new" class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        Add Product
+                    </a>
+                </div>
+                <% } else { %>
+                <div class="products-grid">
+                    <% products.forEach(product => { %>
+                    <div class="product-card" style="position: relative;">
+                        <% if (product.badge) { %>
+                        <span class="product-badge"><%= product.badge %></span>
+                        <% } %>
+                        
+                        <div class="product-image-display">
+                            <%= product.image || '🍰' %>
+                        </div>
+                        
+                        <div style="padding: 1rem 0;">
+                            <div style="font-size: 0.8rem; color: #d97706; font-weight: 700; text-transform: uppercase; margin-bottom: 0.5rem;">
+                                <%= product.category %>
+                            </div>
+                            <h3 style="font-family: 'Playfair Display', serif; font-size: 1.25rem; margin-bottom: 0.5rem;">
+                                <%= product.name %>
+                            </h3>
+                            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1rem;">
+                                <%= product.description %>
+                            </p>
+                            
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <div>
+                                    <span style="font-size: 1.5rem; font-weight: 900; color: #d97706;">$<%= product.price.toFixed(2) %></span>
+                                    <% if (product.originalPrice > product.price) { %>
+                                    <span style="font-size: 0.9rem; color: var(--text-light); text-decoration: line-through; margin-left: 0.5rem;">
+                                        $<%= product.originalPrice.toFixed(2) %>
+                                    </span>
+                                    <% } %>
+                                </div>
+                                <div style="color: #fbbf24;">
+                                    <i class="fas fa-star"></i> <%= product.rating %>
+                                </div>
+                            </div>
+                            
+                            <div style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">
+                                Stock: <strong><%= product.stock %></strong> units
+                            </div>
+                            
+                            <div style="display: flex; gap: 0.5rem;">
+                                <a href="/admin/products/edit/<%= product._id %>" class="btn btn-secondary" style="flex: 1; justify-content: center;">
+                                    <i class="fas fa-edit"></i>
+                                    Edit
+                                </a>
+                                <form action="/admin/products/delete/<%= product._id %>" method="POST" style="flex: 1;" onsubmit="return confirm('Delete this product?')">
+                                    <button type="submit" class="btn btn-danger" style="width: 100%; justify-content: center;">
+                                        <i class="fas fa-trash"></i>
+                                        Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <% }) %>
+                </div>
+                <% } %>
+            </main>
+        </div>
+    </div>
+</body>
+</html>
