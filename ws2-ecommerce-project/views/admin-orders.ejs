@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/styles/main.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Enhanced Admin Dashboard Styles */
+        .dashboard-layout {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            min-height: 100vh;
+        }
+
+        /* Premium Admin Sidebar */
+        .sidebar {
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-header {
+            background: linear-gradient(135deg, #dc2626, #ef4444, #f97316);
+            position: relative;
+            overflow: hidden;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .sidebar-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="admin-pattern" width="25" height="25" patternUnits="userSpaceOnUse"><circle cx="12.5" cy="12.5" r="1.5" fill="white" opacity="0.15"/></pattern></defs><rect width="100" height="100" fill="url(%23admin-pattern)"/></svg>');
+        }
+
+        .sidebar-logo {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(15px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .sidebar-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffffff, #fef3c7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Enhanced Admin Header */
+        .header {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(25px);
+            border-bottom: 1px solid rgba(220, 38, 38, 0.1);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title {
+            font-family: 'Playfair Display', serif;
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-size: 2rem;
+            margin: 0;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 280px;
+            min-height: 100vh;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        /* Enhanced Orders Table */
+        .card {
+            background: white;
+            border-radius: 24px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            margin-top: 2rem;
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            border-bottom: 2px solid rgba(220, 38, 38, 0.1);
+            padding: 2rem;
+        }
+
+        .card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #0f172a, #dc2626);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 0;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            background: white;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .table th {
+            background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+            padding: 1.5rem 2rem;
+            font-weight: 700;
+            color: #0f172a;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            border-bottom: 2px solid rgba(220, 38, 38, 0.1);
+            text-align: left;
+        }
+
+        .table td {
+            padding: 1.5rem 2rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            vertical-align: middle;
+        }
+
+        .table tbody tr {
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .table tbody tr:hover {
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.02), rgba(239, 68, 68, 0.02));
+            transform: scale(1.01);
+            box-shadow: 0 4px 20px rgba(220, 38, 38, 0.1);
+        }
+
+        .table tbody tr:hover::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(135deg, #dc2626, #ef4444);
+        }
+
+        /* Enhanced Status Badges */
+        .status-badge {
+            padding: 0.5rem 1.25rem;
+            border-radius: 25px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .status-badge::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: currentColor;
+            opacity: 0.3;
+        }
+
+        .status-badge.to_pay {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+        }
+
+        .status-badge.to_ship {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .status-badge.to_receive {
+            background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+            color: white;
+            box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+        }
+
+        .status-badge.completed {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .status-badge.refund {
+            background: linear-gradient(135deg, #dc2626, #b91c1c);
+            color: white;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+        }
+
+        .status-badge.cancelled {
+            background: linear-gradient(135deg, #6b7280, #4b5563);
+            color: white;
+            box-shadow: 0 4px 15px rgba(107, 114, 128, 0.3);
+        }
+
+        /* Order ID Display */
+        .order-id {
+            font-family: 'Monaco', monospace;
+            font-size: 0.9rem;
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        /* Customer Email */
+        .customer-email {
+            color: #475569;
+            font-weight: 500;
+        }
+
+        /* Amount Display */
+        .amount {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #dc2626;
+        }
+
+        /* Date Display */
+        .date-display {
+            font-family: 'Monaco', monospace;
+            font-size: 0.85rem;
+            color: #64748b;
+            background: rgba(107, 114, 128, 0.1);
+            padding: 0.25rem 0.75rem;
+            border-radius: 8px;
+            display: inline-block;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #64748b;
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+            color: #dc2626;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 0.5rem;
+            color: #0f172a;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar-nav {
+            padding: 2rem 0;
+        }
+
+        .nav-section {
+            margin-bottom: 2rem;
+        }
+
+        .nav-section-title {
+            padding: 0 1.5rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #94a3b8;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+        }
+
+        .nav-item {
+            margin-bottom: 0.25rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.875rem 1.5rem;
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: #dc2626;
+        }
+
+        .nav-link.active {
+            background: rgba(220, 38, 38, 0.2);
+            color: white;
+            border-left-color: #dc2626;
+        }
+
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                margin-left: 0;
+            }
+
+            .table th,
+            .table td {
+                padding: 1rem;
+                font-size: 0.875rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-layout">
+        <!-- Enhanced Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <i class="fas fa-user-shield"></i>
+                </div>
+                <div class="sidebar-title">AdminHub</div>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Dashboard</div>
+                    <div class="nav-item">
+                        <a href="/users/dashboard" class="nav-link">
+                            <i class="fas fa-chart-line"></i>
+                            Overview
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Administration</div>
+                    <div class="nav-item">
+                        <a href="/users/admin" class="nav-link">
+                            <i class="fas fa-users-cog"></i>
+                            User Management
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="/admin/products" class="nav-link">
+                            <i class="fas fa-box"></i>
+                            Product Management
+                        </a>
+                    </div>
+                    <div class="nav-item">
+                        <a href="/admin/orders" class="nav-link active">
+                            <i class="fas fa-shopping-cart"></i>
+                            Order Management
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="nav-section">
+                    <div class="nav-section-title">Support</div>
+                    <div class="nav-item">
+                        <a href="/users/logout" class="nav-link">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Sign Out
+                        </a>
+                    </div>
+                </div>
+            </nav>
+        </aside>
+        
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Enhanced Header -->
+            <header class="header">
+                <div class="header-left">
+                    <h1 class="page-title">Order Management</h1>
+                </div>
+            </header>
+            
+            <!-- Content -->
+            <main class="content">
+                <!-- Orders Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">All Orders</h3>
+                    </div>
+                    
+                    <div class="table-container">
+                        <% if (!orders || orders.length === 0) { %>
+                        <div class="empty-state">
+                            <i class="fas fa-shopping-cart"></i>
+                            <h3>No orders have been placed yet</h3>
+                            <p>Orders will appear here once customers start placing them.</p>
+                        </div>
+                        <% } else { %>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>
+                                        <i class="fas fa-hashtag"></i>
+                                        Order ID
+                                    </th>
+                                    <th>
+                                        <i class="fas fa-user"></i>
+                                        Customer Email
+                                    </th>
+                                    <th>
+                                        <i class="fas fa-dollar-sign"></i>
+                                        Total Amount
+                                    </th>
+                                    <th>
+                                        <i class="fas fa-info-circle"></i>
+                                        Status
+                                    </th>
+                                    <th>
+                                        <i class="fas fa-calendar-alt"></i>
+                                        Created At
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% orders.forEach(order => { %>
+                                <tr>
+                                    <td>
+                                        <span class="order-id"><%= order.orderId %></span>
+                                    </td>
+                                    <td>
+                                        <span class="customer-email"><%= order.userEmail %></span>
+                                    </td>
+                                    <td>
+                                        <span class="amount">₱<%= Number(order.totalAmount).toFixed(2) %></span>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge <%= order.orderStatus %>">
+                                            <i class="fas fa-circle"></i>
+                                            <%= order.orderStatus.replace(/_/g, ' ') %>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="date-display">
+                                            <% if (order.createdAt && order.createdAt.toLocaleString) { %>
+                                                <%= order.createdAt.toLocaleString() %>
+                                            <% } else { %>
+                                                <%= order.createdAt %>
+                                            <% } %>
+                                        </span>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                        <% } %>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+</body>
+</html>
