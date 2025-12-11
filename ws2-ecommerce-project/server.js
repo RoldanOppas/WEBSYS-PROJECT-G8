@@ -18,6 +18,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+// Serve static files FIRST (before session middleware)
+app.use(express.static(path.join(__dirname, 'public')));
+
 // Session setup - UPDATED with timeout
 app.use(session({
   secret: process.env.SESSION_SECRET || 'dev-secret', // keep secret in .env
@@ -35,23 +38,47 @@ app.use((req, res, next) => {
   next();
 });
 
+// MongoDB Setup
+const uri = process.env.MONGO_URI;
+const client = new MongoClient(uri);
+
+// Expose client & dbName to routes
+app.locals.client = client;
+app.locals.dbName = process.env.DB_NAME || "ecommerceDB";
+
+// Health check endpoint for monitoring (BEFORE session middleware check)
+app.get('/health', (req, res) => {
+  res.type('text').send('ok');
+});
+
+// Serve sitemap.xml
+app.get('/sitemap.xml', (req, res) => {
+  res.sendFile(path.join(__dirname, 'sitemap.xml'));
+});
+
 // Session timeout middleware - ENHANCED
 app.use((req, res, next) => {
   // Routes that don't require authentication
   const publicRoutes = [
     '/', 
+    '/about',
+    '/menu',
+    '/contact',
     '/users/login', 
     '/users/register', 
     '/password/forgot',
-    '/health', // health check endpoint
-    '/styles/', // Allow static files
-    '/scripts/',
-    '/images/'
+    '/health',
+    '/sitemap.xml'
   ];
   
-  const isPublicRoute = publicRoutes.some(route => req.path.startsWith(route)) || 
+  // Check if it's a static file request
+  const staticFileExtensions = ['.css', '.js', '.png', '.jpg', '.jpeg', '.gif', '.ico', '.svg', '.woff', '.woff2', '.ttf', '.eot'];
+  const isStaticFile = staticFileExtensions.some(ext => req.path.endsWith(ext));
+  
+  const isPublicRoute = publicRoutes.includes(req.path) || 
                        req.path.startsWith('/password/reset/') ||
-                       req.path.startsWith('/users/verify/');
+                       req.path.startsWith('/users/verify/') ||
+                       isStaticFile;
   
   if (!isPublicRoute) {
     // Check if user session exists
@@ -79,15 +106,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// MongoDB Setup
-const uri = process.env.MONGO_URI;
-const client = new MongoClient(uri);
-
-// Expose client & dbName to routes
-app.locals.client = client;
-app.locals.dbName = process.env.DB_NAME || "ecommerceDB";
-
-// Routes
+// Routes - MOUNT AFTER SESSION MIDDLEWARE
 const indexRoute = require('./routes/index');
 const usersRoute = require('./routes/users');
 const passwordRoute = require('./routes/password');
@@ -95,19 +114,6 @@ const passwordRoute = require('./routes/password');
 app.use('/', indexRoute);
 app.use('/users', usersRoute);
 app.use('/password', passwordRoute);
-
-// Serve static files from public directory (before 404)
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Health check endpoint for monitoring
-app.get('/health', (req, res) => {
-  res.type('text').send('ok');
-});
-
-// Serve sitemap.xml
-app.get('/sitemap.xml', (req, res) => {
-  res.sendFile(path.join(__dirname, 'sitemap.xml'));
-});
 
 // Log 404s for debugging (optional but helpful)
 app.use((req, res, next) => {

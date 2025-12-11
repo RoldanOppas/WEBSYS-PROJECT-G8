@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/styles/main.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: "Segoe UI", system-ui, sans-serif;
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            color: #222;
+            background: linear-gradient(180deg, #fef3c7 0%, #fffbf0 100%);
+            min-height: 100vh;
+        }
+
+        /* Navbar matching index.ejs */
+        .navbar {
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(12px);
+            box-shadow: 0 4px 20px rgba(120, 53, 15, 0.1);
+            border-bottom: 2px solid #fef3c7;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.25rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.875rem;
+            font-size: 1.85rem;
+            font-weight: 800;
+            color: #292524;
+            text-decoration: none;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .brand-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #d97706, #ea580c);
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 6px 20px rgba(217, 119, 6, 0.35);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: #292524;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            padding: 0.5rem 0;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 3px;
+            background: linear-gradient(135deg, #d97706, #ea580c);
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after,
+        .nav-link.active::after {
+            width: 100%;
+        }
+
+        .nav-link:hover,
+        .nav-link.active {
+            color: #d97706;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        /* Page Header */
+        .page-header {
+            background: linear-gradient(135deg, #d97706 0%, #ea580c 50%, #f59e0b 100%);
+            color: white;
+            padding: 5rem 0 4rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .page-header::before {
+            content: '🍰';
+            position: absolute;
+            font-size: 18rem;
+            opacity: 0.08;
+            top: -4rem;
+            left: -3rem;
+            transform: rotate(15deg);
+        }
+
+        .page-header h1 {
+            font-size: 4rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+            font-family: 'Playfair Display', serif;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            position: relative;
+            z-index: 2;
+        }
+
+        .page-header p {
+            font-size: 1.3rem;
+            opacity: 0.95;
+            max-width: 700px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Menu Content */
+        .menu-container {
+            max-width: 1400px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+
+        .menu-category {
+            background: white;
+            border-radius: 24px;
+            padding: 3rem;
+            margin-bottom: 3rem;
+            box-shadow: 0 10px 40px rgba(120, 53, 15, 0.1);
+            border: 3px solid #fef3c7;
+        }
+
+        .menu-category h2 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #292524;
+            margin-bottom: 2rem;
+            font-family: 'Playfair Display', serif;
+            border-bottom: 4px solid #d97706;
+            display: inline-block;
+            padding-bottom: 0.5rem;
+        }
+
+        .menu-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .menu-item {
+            padding: 1.5rem;
+            border: 2px solid #fef3c7;
+            border-radius: 16px;
+            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #fffbf0, #fef3c7);
+        }
+
+        .menu-item:hover {
+            transform: translateY(-5px);
+            border-color: #d97706;
+            box-shadow: 0 10px 30px rgba(217, 119, 6, 0.2);
+        }
+
+        .menu-item h3 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #292524;
+            margin-bottom: 0.5rem;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .menu-item p {
+            color: #57534e;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .menu-item .price {
+            font-size: 1.5rem;
+            font-weight: 900;
+            color: #d97706;
+        }
+
+        /* Footer */
+        .footer {
+            background: linear-gradient(135deg, #292524, #44403c);
+            color: rgba(255, 255, 255, 0.9);
+            padding: 3rem 0 2rem;
+            margin-top: 5rem;
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            text-align: center;
+        }
+
+        .footer p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.025rem;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .page-header h1 {
+                font-size: 2.5rem;
+            }
+
+            .menu-category {
+                padding: 2rem;
+            }
+
+            .menu-items {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="brand">
+                <div class="brand-icon">
+                    <i class="fas fa-birthday-cake"></i>
+                </div>
+                Sweet Haven
+            </a>
+            
+            <ul class="nav-links">
+                <li><a href="/" class="nav-link">Home</a></li>
+                <li><a href="#products" class="nav-link">Our Bakery</a></li>
+                <li><a href="/menu" class="nav-link active">Menu</a></li>
+                <li><a href="/about" class="nav-link">About Us</a></li>
+                <li><a href="/contact" class="nav-link">Contact</a></li>
+            </ul>
+            
+            <div class="auth-buttons">
+                <a href="/users/login" class="btn btn-secondary">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login
+                </a>
+                <a href="/users/register" class="btn btn-primary">
+                    <i class="fas fa-user-plus"></i>
+                    Register
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Page Header -->
+    <header class="page-header">
+        <h1>Our Complete Menu</h1>
+        <p>Freshly baked daily with love and premium ingredients</p>
+    </header>
+
+    <!-- Menu Content -->
+    <div class="menu-container">
+        <!-- Pastries -->
+        <div class="menu-category">
+            <h2>🥐 Pastries</h2>
+            <div class="menu-items">
+                <div class="menu-item">
+                    <h3>Butter Croissant</h3>
+                    <p>Classic French pastry with 27 layers of buttery goodness</p>
+                    <span class="price">$4.50</span>
+                </div>
+                <div class="menu-item">
+                    <h3>Pain au Chocolat</h3>
+                    <p>Buttery croissant filled with premium dark chocolate</p>
+                    <span class="price">$5.25</span>
+                </div>
+                <div class="menu-item">
+                    <h3>Almond Croissant</h3>
+                    <p>Filled with almond cream and topped with sliced almonds</p>
+                    <span class="price">$5.50</span>
+                </div>
+                <div class="menu-item">
+                    <h3>Danish Pastry</h3>
+                    <p>Choice of fruit or cheese filling, glazed to perfection</p>
+                    <span class="price">$4.75</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cakes -->
+        <div class="menu-category">
+            <h2>🍰 Cakes</h2>
+            <div class="menu-items">
+                <div class="menu-item">
+                    <h3>Chocolate Truffle Cake</h3>
+                    <p>Rich chocolate layers with Belgian ganache</p>
+                    <span class="price">$35.00</span>
+                </div>
+                <div class="menu-item">
+                    <h3>Red Velvet Cake</h3>
+                    <p>Classic red velvet with cream cheese frosting</p>
+                    <span class="price">$32.00</span>
+                </div>
+                <div class="menu-item">
+                    <h3>Carrot Cake</h3>
+                    <p>Moist spice cake with walnuts and cream cheese icing</p>
+                    <span class="price">$30.00</span>
+                </div>
+                <div class="menu-item">
+                    <h3>Lemon Drizzle Cake</h3>
+                    <p>Light sponge with tangy lemon glaze</p>
+                    <span class="price">$28.00</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Breads -->
+        <div class="menu-category">
+            <h2>🍞 Artisan Breads</h2>
+            <div class="menu-items">
+                <div class="menu-item">
+                    <h3>Sourdough Loaf</h3>
+                    <p>Made with our 50-year-old starter culture</p>
+                    <span class="price">$8.50</span>
+                </div>
+                <div class="menu-item">
+                    <h3>Baguette</h3>
+                    <p>Traditional French bread with crispy crust</p>
+                    <span class="price">$5.00</span>
+                </div>
+                <div class="menu-item">
+                    <h3>Multigrain Loaf</h3>
+                    <p>Healthy blend of seeds and whole grains</p>
+                    <span class="price">$9.00</span>
+                </div>
+                <div class="menu-item">
+                    <h3>Ciabatta</h3>
+                    <p>Italian bread with open crumb structure</p>
+                    <span class="price">$7.50</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cupcakes -->
+        <div class="menu-category">
+            <h2>🧁 Cupcakes</h2>
+            <div class="menu-items">
+                <div class="menu-item">
+                    <h3>Vanilla Bean Cupcakes</h3>
+                    <p>Light vanilla cake with buttercream (Box of 6)</p>
+                    <span class="price">$24.00</span>
+                </div>
+                <div class="menu-item">
+                    <h3>Chocolate Fudge Cupcakes</h3>
+                    <p>Rich chocolate with fudge frosting (Box of 6)</p>
+                    <span class="price">$25.00</span>
+                </div>
+                <div class="menu-item">
+                    <h3>Strawberry Shortcake</h3>
+                    <p>Fresh strawberries with whipped cream (Box of 6)</p>
+                    <span class="price">$26.00</span>
+                </div>
+                <div class="menu-item">
+                    <h3>Red Velvet Cupcakes</h3>
+                    <p>Classic red velvet with cream cheese (Box of 6)</p>
+                    <span class="price">$25.00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <p>© <%= new Date().getFullYear() %> Sweet Haven Bakery. All rights reserved. Baked with ❤️</p>
+        </div>
+    </footer>
+</body>
+</html>
